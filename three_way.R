@@ -72,11 +72,51 @@ tensor_products <- function(i1, i2) {
 }
 
 
-
+#' Perform Complex Matrix Operations Involving Tensor Products
+#'
+#' This function computes complex matrix operations involving multiple matrix products,
+#' tensor products, and different kinds of matrix transformations. Specifically, it calculates
+#' a product involving matrices A, B, C, and G, then computes differences based on subsetting
+#' and matrix transformations to explore specific patterns in the results.
+#'
+#' @param A Matrix of dimensions I x P.
+#' @param B Matrix of dimensions J x Q.
+#' @param C Matrix of dimensions K x R.
+#' @param G Matrix of dimensions P x (Q * R).
+#' @param I Number of rows in matrix A.
+#' @param J Number of columns in matrix B relevant for subsetting.
+#' @param K Number of steps in sequence generation.
+#' @param P Number of columns in matrix A and rows in matrix G.
+#' @param Q Number of columns in matrix B and part of the dimensions for G.
+#' @param R Number of columns in matrix C and part of the dimensions for G.
+#' @return A list containing:
+#'   - `X`: Result of the matrix product A %*% G %*% t(C %x% B).
+#'   - `row_col_diff`: Difference computation for the second row across the first J columns.
+#'   - `seq_diff`: Difference computation along a sequence derived from matrix dimensions.
+#' @examples
+#' I <- 10; J <- 4; K <- 3
+#' P <- 4; Q <- 3; R <- 2
+#' A <- matrix(rnorm(I * P), I, P)
+#' B <- matrix(rnorm(J * Q), J, Q)
+#' C <- matrix(rnorm(K * R), K, R)
+#' G <- matrix(rnorm(P * Q * R), P, Q * R)
+#' results <- complex_matrix_operations(A, B, C, G, I, J, K, P, Q, R)
+#' @export
 complex_matrix_operations <- function(A, B, C, G, I, J, K, P, Q, R) {
+    if (!all(dim(A) == c(I, P), dim(B) == c(J, Q), dim(C) == c(K, R), dim(G) == c(P, Q * R))) {
+        stop("Input matrices do not match specified dimensions.")
+    }
+
+    # Compute the product of matrix A, G, and the transpose of the tensor product of C and B
     X <- A %*% G %*% t(C %x% B)
+
+    # Difference calculation for the second row across the first J columns
     row_col_diff <- X[2, 1:J] - B %*% t(C[1, 1] * G[, 1:Q] + C[1, 2] * G[, Q + (1:Q)]) %*% A[2, ]
-    seq_diff <- X[1, seq(1, J * K, J)] - C %*% t(B[1, 1] * G[, seq(1, Q * R, Q)] + B[1, 2] * G[, seq(2, Q * R, Q)] + B[1, 3] * G[, seq(3, Q * R, Q)]) %*% A[1, ]
+
+    # Difference calculation along a sequence derived from matrix dimensions
+    seq_diff <- X[1, seq(1, J * K, J)] - C %*% t(B[1, 1] * G[, seq(1, Q * R, Q)] +
+                                                     B[1, 2] * G[, seq(2, Q * R, Q)] +
+                                                     B[1, 3] * G[, seq(3, Q * R, Q)]) %*% A[1, ]
 
     list(
         X = X,
@@ -84,6 +124,7 @@ complex_matrix_operations <- function(A, B, C, G, I, J, K, P, Q, R) {
         seq_diff = seq_diff
     )
 }
+
 
 # Adjusted CPfunc to handle outputs as a list
 CPfunc <- function(X, R, max_iter, conv_eps) {
