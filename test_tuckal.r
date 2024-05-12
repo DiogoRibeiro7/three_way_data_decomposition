@@ -5,9 +5,9 @@ source("tuckal.R")
 test_that("tuckal function works correctly with valid input", {
     # Mock matrices to simulate input
     matrixA <- matrix(rnorm(20), nrow = 5, ncol = 4)
-    matrixB <- matrix(rnorm(15), nrow = 5, ncol = 3)
-    matrixX1 <- matrix(rnorm(50), nrow = 5, ncol = 10)
-    matrixX2 <- matrix(rnorm(50), nrow = 5, ncol = 10)
+    matrixB <- matrix(rnorm(20), nrow = 5, ncol = 4)
+    matrixX1 <- matrix(rnorm(75), nrow = 5, ncol = 15)
+    matrixX2 <- matrix(rnorm(75), nrow = 5, ncol = 15)
     diagonalElements <- 3
     nComp1 <- 2
     nComp2 <- 2
@@ -28,9 +28,9 @@ test_that("tuckal function works correctly with valid input", {
 
 test_that("tuckal handles zero iterations correctly", {
     matrixA <- matrix(rnorm(20), nrow = 5, ncol = 4)
-    matrixB <- matrix(rnorm(15), nrow = 5, ncol = 3)
-    matrixX1 <- matrix(rnorm(50), nrow = 5, ncol = 10)
-    matrixX2 <- matrix(rnorm(50), nrow = 5, ncol = 10)
+    matrixB <- matrix(rnorm(20), nrow = 5, ncol = 4)
+    matrixX1 <- matrix(rnorm(75), nrow = 5, ncol = 15)
+    matrixX2 <- matrix(rnorm(75), nrow = 5, ncol = 15)
     diagonalElements <- 3
     nComp1 <- 2
     nComp2 <- 2
@@ -45,3 +45,20 @@ test_that("tuckal handles zero iterations correctly", {
     expect_true(all(result$matrixA == matrixA[, 1:nComp1]))
     expect_true(all(result$matrixB == matrixB[, 1:nComp2]))
 })
+
+# matrixA <- matrix(rnorm(20), nrow = 5, ncol = 4)
+# matrixB <- matrix(rnorm(20), nrow = 5, ncol = 4)
+# matrixX1 <- matrix(rnorm(75), nrow = 5, ncol = 15)
+# matrixX2 <- matrix(rnorm(75), nrow = 5, ncol = 15)
+# nComp3 <- 3
+# matrixC <- diag(nComp3)
+# print(dim(matrixA))
+# print(dim(matrixX1))
+# print(dim(matrixC))
+# print(dim(matrixB))
+# print(dim(crossprod(matrixA, matrixX1)))
+# print(dim(kronecker(matrixC, matrixB)))
+
+# matrixG <- crossprod(matrixA, matrixX1) %*% kronecker(matrixC, matrixB)
+
+# print(matrixG)
