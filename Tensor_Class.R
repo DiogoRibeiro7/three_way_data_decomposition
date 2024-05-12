@@ -446,4 +446,31 @@ setMethod(
     }
 )
 
+# Define the transpose method 't' for objects of class 'Tensor'
+# This method performs a transpose operation specifically designed for 3D tensors.
+# @param x A 'Tensor' object expected to be three-dimensional.
+# @return Returns a new 'Tensor' object with the dimensions swapped.
+setMethod(
+  f = "t",
+  signature = "Tensor",
+  definition = function(x) {
+    # Ensure 'x' is a valid Tensor object
+    validObject(x)
+
+    # Check if the tensor is 3-dimensional as required
+    if (x@num_modes != 3) {
+      stop("Tensor Transpose is currently only implemented for 3D tensors.")
+    }
+
+    # Retrieve the modes (dimensions) of the tensor
+    modes <- x@modes
+
+    # Perform the transpose operation on the tensor's data
+    # The 'apply' function is used to apply the transpose (t) function across the 3rd dimension
+    new_arr <- array(apply(x@data, MARGIN = c(1, 3), FUN = function(mat) t(mat)), dim = modes[c(2, 1, 3)])
+
+    # Assuming 'as.tensor' properly initializes a new Tensor object with given data and updated dimensions
+    as.tensor(new_arr)
+  }
+)
 
