@@ -972,4 +972,71 @@ as.tensor <- function(x, drop = FALSE) {
 }
 
 
+# Set up a generic function for 'tperm', the tensor permutation method
+setGeneric("tperm",
+           def = function(tnsr, perm, ...) {
+               standardGeneric("tperm")
+           })
+
+# Define the 'tperm' method for the 'Tensor' class
+# This method simplifies mode permutation of a tensor by overloading the 'aperm' function,
+# making it specific and convenient for tensor manipulation.
+#
+# @param tnsr A 'Tensor' object whose modes are to be permuted.
+# @param perm A vector specifying the new ordering of the modes.
+# @param ... Additional arguments to be passed to 'aperm', such as 'useNames'.
+# @return Returns a new 'Tensor' object with its modes permuted according to 'perm'.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# permuted_tensor <- tperm(tnsr, perm = c(2, 1, 3))
+# permuted_tensor <- tperm(tnsr, perm = c(1, 3, 2))
+# @rdname tperm-methods
+# @aliases tperm tperm-methods tperm,Tensor-method
+# @seealso \code{\link{aperm}}
+setMethod("tperm", signature = "Tensor",
+          definition = function(tnsr, perm, ...) {
+              # Check if 'perm' is provided and valid
+              if (is.null(perm)) {
+                  stop("'perm' must be specified and cannot be NULL.")
+              }
+              num_modes <- length(tnsr@modes)
+              if (length(perm) != num_modes || any(perm < 1) || any(perm > num_modes)) {
+                  stop("Invalid permutation vector. Ensure it correctly specifies mode indices.")
+              }
+
+              # Apply permutation to the tensor's data
+              permuted_data <- aperm(tnsr@data, perm, ...)
+
+              # Return a new tensor with the permuted data
+              return(as.tensor(permuted_data, modes = tnsr@modes[perm]))
+          }
+)
+
+
+# Set up a generic function for 'vec', which flattens a tensor into a vector
+setGeneric("vec", def = function(tnsr) {
+    standardGeneric("vec")
+})
+
+# Define the 'vec' method for the 'Tensor' class
+# This method converts a tensor into a vector, following the convention that
+# earlier indices in the tensor vary slower than later indices. This is commonly used
+# in operations where a tensor needs to be treated as a single sequence of elements,
+# such as serialization or certain types of mathematical analysis.
+#
+# @param tnsr A 'Tensor' object to be flattened.
+# @return Returns a vector containing all elements of the tensor.
+# @examples
+# tnsr <- rand_tensor(c(4, 5, 6, 7))  # Assume a function to generate a random tensor
+# flattened_vector <- vec(tnsr)
+# @rdname vec-methods
+# @aliases vec vec,Tensor-method
+# @references T. Kolda, B. Bader, "Tensor decomposition and applications".
+#            SIAM Applied Mathematics and Applications, 2009.
+setMethod("vec", signature = "Tensor",
+          definition = function(tnsr) {
+              # Flatten the tensor data into a vector
+              as.vector(tnsr@data)
+          }
+)
 
