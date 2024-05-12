@@ -235,3 +235,131 @@ setGeneric(
     standardGeneric("innerProd")
   }
 )
+
+
+# Define the method 'initialize' for objects of class 'Tensor'
+# This method initializes a Tensor object with the specified number of modes, mode dimensions, and data.
+# @param .Object An instance of class 'Tensor' to be initialized.
+# @param num_modes Integer, the number of modes (dimensions) of the tensor. If NULL, it will be inferred from 'data'.
+# @param modes Integer vector, specifying the size of each mode (dimension). If NULL, it will be inferred from 'data'.
+# @param data An array or vector representing the tensor's data. If data is a vector and no mode information is provided, it is treated as a single-mode tensor.
+# @return An initialized 'Tensor' object.
+setMethod(
+  f = "initialize",
+  signature = "Tensor",
+  definition = function(.Object, num_modes = NULL, modes = NULL, data = NULL) {
+    # Infer num_modes from data if not provided
+    if (is.null(num_modes)) {
+      if (is.vector(data)) {
+        num_modes <- 1L
+      } else {
+        num_modes <- length(dim(data))
+      }
+    }
+
+    # Infer modes from data if not provided
+    if (is.null(modes)) {
+      if (is.vector(data)) {
+        modes <- length(data)
+      } else {
+        modes <- dim(data)
+      }
+    }
+
+    # Assign the properties to the Tensor object
+    .Object@num_modes <- num_modes
+    .Object@modes <- modes
+    .Object@data <- array(data, dim = modes)
+
+    # Validate the Tensor object to ensure it meets all class requirements
+    validObject(.Object)
+
+    # Return the initialized Tensor object
+    return(.Object)
+  }
+)
+
+# Set options to suppress warnings globally in R
+# This setting is applied to prevent warnings from being displayed.
+# Use this setting cautiously, as it can hide important alerts about potential issues in your code.
+options(warn = -1)
+
+
+# Define the 'dim' method for objects of class 'Tensor'
+# This method returns the dimensions of the tensor, specifically the size of each mode.
+# @param x An object of class 'Tensor'.
+# @return Returns the size of each mode of the tensor as a numeric vector.
+setMethod(
+  f = "dim",
+  signature = "Tensor",
+  definition = function(x) {
+    # Ensure 'x' is a valid Tensor object
+    validObject(x)
+    # Access and return the 'modes' slot of the Tensor object
+    return(x@modes)
+  }
+)
+
+# Define the 'show' method for objects of class 'Tensor'
+# This method provides a user-friendly display of the Tensor object's properties.
+# @param object An instance of class 'Tensor'.
+setMethod(
+  f = "show",
+  signature = "Tensor",
+  definition = function(object) {
+    # Ensure 'object' is a valid Tensor object
+    validObject(object)
+
+    # Display the basic information about the Tensor
+    cat("Numeric Tensor of", object@num_modes, "Modes\n", sep=" ")
+
+    # Display the dimensions (modes) of the Tensor
+    cat("Modes: ", paste(object@modes, collapse=", "), "\n", sep=" ")
+
+    # Display a preview of the tensor's data
+    cat("Data: \n")
+    # Print only the first few elements of the tensor's data to avoid overwhelming the user
+    print(head(object@data))
+  }
+)
+
+
+# Define the 'print' method for objects of class 'Tensor'
+# This method is intended to print the Tensor object in a user-readable format
+# by delegating to the 'show' method.
+# @param x An instance of class 'Tensor'.
+# @param ... Additional arguments that can be handled by the 'print' method.
+setMethod(
+  f = "print",
+  signature = "Tensor",
+  definition = function(x, ...) {
+    # Call the 'show' method for the 'Tensor' class
+    # This displays the Tensor object with its structure and data
+    show(x)
+    # It is common to invisibly return the object itself after printing
+    invisible(x)
+  }
+)
+
+
+# Define the 'head' method for objects of class 'Tensor'
+# This method displays the first few elements of the Tensor's data array.
+# @param x An instance of class 'Tensor'.
+# @param ... Additional arguments (like 'n' for the number of items) that can be passed to the standard 'head' function.
+setMethod(
+  f = "head",
+  signature = "Tensor",
+  definition = function(x, ...) {
+    # Ensure 'x' is a valid Tensor object
+    validObject(x)
+
+    # Call the base 'head' function on the 'data' slot of the Tensor
+    # Additional arguments are passed through using '...'
+    result <- head(x@data, ...)
+
+    # Return the result of the 'head' function
+    return(result)
+  }
+)
+
+
