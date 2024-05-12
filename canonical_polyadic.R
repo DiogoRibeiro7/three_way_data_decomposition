@@ -26,9 +26,9 @@
 #'
 #' @examples
 #' matrixA <- matrix(rnorm(20), nrow = 5, ncol = 4)
-#' matrixB <- matrix(rnorm(15), nrow = 5, ncol = 3)
-#' matrixX1 <- matrix(rnorm(50), nrow = 5, ncol = 10)
-#' matrixX2 <- matrix(rnorm(50), nrow = 5, ncol = 10)
+#' matrixB <- matrix(rnorm(20), nrow = 5, ncol = 4)
+#' matrixX1 <- matrix(rnorm(75), nrow = 5, ncol = 15)
+#' matrixX2 <- matrix(rnorm(75), nrow = 5, ncol = 15)
 #' nComp3 <- 3
 #' results <- cp(tnsr = as.tensor(matrixX1), num_components = 2, max_iter = 100, tol = 1e-4)
 #' print(results)
