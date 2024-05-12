@@ -362,4 +362,23 @@ setMethod(
   }
 )
 
+# Define the 'tail' method for objects of class 'Tensor'
+# This method displays the last few elements of the Tensor's data array.
+# @param x An instance of class 'Tensor'.
+# @param ... Additional arguments (like 'n' for the number of items) that can be passed to the standard 'tail' function.
+setMethod(
+  f = "tail",
+  signature = "Tensor",
+  definition = function(x, ...) {
+    # Ensure 'x' is a valid Tensor object
+    validObject(x)
+
+    # Call the base 'tail' function on the 'data' slot of the Tensor
+    # Additional arguments are passed through using '...'
+    result <- tail(x@data, ...)
+
+    # Return the result of the 'tail' function
+    return(result)
+  }
+)
 
