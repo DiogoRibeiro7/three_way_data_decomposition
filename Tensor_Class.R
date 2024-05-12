@@ -382,3 +382,34 @@ setMethod(
   }
 )
 
+
+# Define the subsetting method '[' for objects of class 'Tensor'
+# This method allows subsetting of Tensor objects, retaining or dropping dimensions based on the 'drop' argument.
+# @param x A 'Tensor' object.
+# @param i Indices or conditions for subsetting along the first dimension.
+# @param j Indices or conditions for subsetting along the second dimension.
+# @param ... Additional indices or conditions for subsetting further dimensions.
+# @param drop Logical, determines whether dimensions that have only one level should be dropped.
+# @return Returns a subsetted 'Tensor' object.
+setMethod(
+  f = "[",
+  signature = "Tensor",
+  definition = function(x, i, j, ..., drop = TRUE) {
+    # Ensure 'x' is a valid Tensor object
+    validObject(x)
+
+    # Use base subsetting function but control the 'drop' behavior explicitly
+    if (!drop) {
+      # If 'drop' is FALSE, use 'as.tensor' to ensure the result is still a 'Tensor' object
+      # and retain original dimensions without dropping
+      new_data <- as.tensor(`[`(x@data, i, j, ..., drop = FALSE), drop = drop)
+    } else {
+      # If 'drop' is TRUE, allow the default behavior and convert the result back to a 'Tensor'
+      new_data <- as.tensor(`[`(x@data, i, j, ...))
+    }
+
+    # Return the new, possibly subsetted 'Tensor' object
+    return(new_data)
+  }
+)
+
