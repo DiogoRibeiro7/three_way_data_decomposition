@@ -715,3 +715,261 @@ setMethod("innerProd", signature = c(tnsr1 = "Tensor", tnsr2 = "Tensor"),
   }
 )
 
+
+# Define the 'unfold' method for the 'Tensor' class
+# This method reorganizes a tensor into a matrix based on specified indices for the rows and columns.
+# It requires the specification of indices for the rows and columns that together must cover all modes
+# of the tensor without overlap and repetition.
+#
+# @param tnsr A 'Tensor' object to be unfolded.
+# @param row_idx A vector of integers indicating which modes of the tensor should form the rows of the matrix.
+# @param col_idx A vector of integers indicating which modes of the tensor should form the columns of the matrix.
+# @return Returns a new 'Tensor' object that is a two-dimensional matrix representation of the original tensor.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# unfolded_tensor <- unfold(tnsr, row_idx=c(1,2), col_idx=3)
+# @rdname unfold-methods
+# @aliases unfold,Tensor-method
+setMethod("unfold", signature = "Tensor",
+  definition = function(tnsr, row_idx = NULL, col_idx = NULL) {
+    # Validation of indices
+    if (is.null(row_idx) || is.null(col_idx)) {
+      stop("Both row and column indices must be specified.")
+    }
+    num_modes <- tnsr@num_modes
+    if (length(row_idx) + length(col_idx) != num_modes) {
+      stop("The total number of row and column indices must match the number of modes in the tensor.")
+    }
+    if (any(row_idx < 1) || any(row_idx > num_modes) || any(col_idx < 1) || any(col_idx > num_modes)) {
+      stop("Specified indices are out of bounds.")
+    }
+    perm <- c(row_idx, col_idx)
+    if (any(sort(perm, decreasing = TRUE) != num_modes:1)) {
+      stop("Indices are missing and/or repeated. Each index should be used exactly once.")
+    }
+
+    # Retrieve modes and reorganize tensor data
+    modes <- tnsr@modes
+    mat <- tnsr@data
+
+    # Calculate new dimensions for the matrix
+    new_modes <- c(prod(modes[row_idx]), prod(modes[col_idx]))
+
+    # Rearrange the tensor into a matrix according to the specified permutation of modes
+    mat <- aperm(mat, perm)
+    dim(mat) <- new_modes
+
+    # Return the newly formed matrix as a tensor
+    as.tensor(mat)
+  }
+)
+
+
+# Define the 'k_unfold' method for the 'Tensor' class
+# This method unfolds the tensor along a specified mode 'm'. In mode-k unfolding,
+# the mode 'm' forms the rows of the resulting matrix, and the other modes are combined to form the columns.
+# This operation is commonly used in tensor decomposition techniques and multilinear algebra.
+#
+# @param tnsr A 'Tensor' object to be unfolded.
+# @param m An integer specifying the mode that should form the rows of the unfolded matrix.
+# @return Returns a new 'Tensor' object that is a two-dimensional matrix, where the specified mode is unfolded
+#         to the rows and all other modes to the columns.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# unfolded_tensor <- k_unfold(tnsr, m=2)
+# @rdname k_unfold-methods
+# @aliases k_unfold,Tensor-method
+setMethod("k_unfold", signature = "Tensor",
+  definition = function(tnsr, m = NULL) {
+    # Ensure the mode 'm' is specified
+    if (is.null(m)) {
+      stop("Mode 'm' must be specified for k_unfolding.")
+    }
+
+    # Check if 'm' is within the bounds of tensor's dimensions
+    num_modes <- tnsr@num_modes
+    if (m < 1 || m > num_modes) {
+      stop("Specified mode 'm' is out of bounds.")
+    }
+
+    # Define the row indices as 'm' and the column indices as all other modes
+    rs <- m
+    cs <- (1:num_modes)[-m]
+
+    # Call the 'unfold' method to perform the unfolding
+    unfolded_tensor <- unfold(tnsr, row_idx = rs, col_idx = cs)
+    return(unfolded_tensor)
+  }
+)
+
+
+# Define the 'matvec' method for the 'Tensor' class
+# This method is specifically designed for 3D tensors where it rearranges the tensor into a matrix form.
+# In this matricization, the tensor is unfolded such that the first and third modes form the rows,
+# and the second mode forms the columns of the resulting matrix. This kind of unfolding is often
+# used in operations that treat the tensor as a collection of vectors (mode-2 vectors) for efficient
+# computation of matrix-vector products.
+#
+# @param tnsr A 'Tensor' object to be transformed.
+# @return Returns a new 'Tensor' object that is a two-dimensional matrix, unfolded such that
+#         modes 1 and 3 form the rows, and mode 2 forms the columns.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# matrix_representation <- matvec(tnsr)
+# @rdname matvec-methods
+# @aliases matvec,Tensor-method matvec,Tensor,Tensor-method
+setMethod('matvec', signature = "Tensor",
+          definition = function(tnsr) {
+            # Ensure the tensor is exactly 3-dimensional
+            if (tnsr@num_modes != 3) {
+              stop("Matvec currently only implemented for 3D Tensors")
+            }
+
+            # Perform the unfolding using predefined dimensions
+            # This unfolds the tensor such that the rows are combinations of modes 1 and 3,
+            # and the columns are formed by mode 2.
+            result <- unfold(tnsr, row_idx = c(1, 3), col_idx = 2)
+
+            # Return the resulting unfolded tensor
+            return(result)
+          }
+)
+
+
+# Define the 'rs_unfold' method for the 'Tensor' class
+# This method unfolds the tensor along a specified mode 'm', arranging the tensor such that the specified
+# mode forms the rows of the resulting matrix, and all other modes are combined to form the columns.
+# This type of unfolding is useful in various multilinear operations and tensor decompositions where
+# specific modes are treated distinctly from others.
+#
+# @param tnsr A 'Tensor' object to be unfolded.
+# @param m An integer specifying the mode that should form the rows of the unfolded matrix.
+# @return Returns a new 'Tensor' object that is a two-dimensional matrix, where the specified mode is unfolded
+#         to the rows and all other modes to the columns.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# unfolded_tensor <- rs_unfold(tnsr, m=1)
+# @rdname rs_unfold-methods
+# @aliases rs_unfold,Tensor-method
+setMethod("rs_unfold", signature = "Tensor",
+          definition = function(tnsr, m = NULL) {
+              # Ensure the mode 'm' is specified
+              if (is.null(m)) {
+                  stop("Mode 'm' must be specified for rs_unfolding.")
+              }
+
+              # Validate mode 'm' within the bounds of tensor's dimensions
+              num_modes <- tnsr@num_modes
+              if (m < 1 || m > num_modes) {
+                  stop("Specified mode 'm' is out of bounds.")
+              }
+
+              # Define the row indices as 'm' and the column indices as all other modes
+              rs <- m
+              cs <- (1:num_modes)[-m]
+
+              # Call the 'unfold' method to perform the unfolding
+              unfolded_tensor <- unfold(tnsr, row_idx = rs, col_idx = cs)
+              return(unfolded_tensor)
+          }
+)
+
+
+# Define the 'cs_unfold' method for the 'Tensor' class
+# This method unfolds the tensor along a specified mode 'm', arranging the tensor such that the specified
+# mode forms the columns of the resulting matrix, and all other modes are combined to form the rows.
+# This type of unfolding is particularly useful for analyses that require treating one mode as the feature dimension
+# in statistical models or machine learning algorithms.
+#
+# @param tnsr A 'Tensor' object to be unfolded.
+# @param m An integer specifying the mode that should form the columns of the unfolded matrix.
+# @return Returns a new 'Tensor' object that is a two-dimensional matrix, where the specified mode is unfolded
+#         to the columns and all other modes to the rows.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# unfolded_tensor <- cs_unfold(tnsr, m=3)
+# @rdname cs_unfold-methods
+# @aliases cs_unfold,Tensor-method
+setMethod("cs_unfold", signature = "Tensor",
+          definition = function(tnsr, m = NULL) {
+              # Ensure the mode 'm' is specified
+              if (is.null(m)) {
+                  stop("Mode 'm' must be specified for cs_unfolding.")
+              }
+
+              # Validate mode 'm' within the bounds of tensor's dimensions
+              num_modes <- tnsr@num_modes
+              if (m < 1 || m > num_modes) {
+                  stop("Specified mode 'm' is out of bounds.")
+              }
+
+              # Define the column indices as 'm' and the row indices as all other modes
+              rs <- (1:num_modes)[-m]
+              cs <- m
+
+              # Call the 'unfold' method to perform the unfolding
+              unfolded_tensor <- unfold(tnsr, row_idx = rs, col_idx = cs)
+              return(unfolded_tensor)
+          }
+)
+
+
+# Creation of Tensor from array, matrix, or vector
+
+#' Tensor Conversion
+#'
+#' Create a \code{\link{Tensor-class}} object from an \code{array}, \code{matrix}, or \code{vector}.
+#' This function allows for the seamless transformation of base R data structures into a Tensor-class object,
+#' facilitating operations that are specific to tensors.
+#' 
+#' @param x An instance of \code{array}, \code{matrix}, or \code{vector} to be converted into a Tensor.
+#' @param drop Logical; if TRUE, any singleton dimensions (dimensions of length 1) will be dropped in the resulting tensor.
+#' @return A \code{\link{Tensor-class}} object representing the input data structured as a tensor.
+#' @export
+#' @name as.tensor
+#' @rdname as.tensor
+#' @aliases as.tensor
+#' @examples
+#' # From vector:
+#' vec <- runif(100)
+#' vecT <- as.tensor(vec)
+#' vecT
+#'
+#' # From matrix:
+#' mat <- matrix(runif(1000), nrow = 100, ncol = 10)
+#' matT <- as.tensor(mat)
+#' matT
+#'
+#' # From array:
+#' indices <- c(10, 20, 30, 40)
+#' arr <- array(runif(prod(indices)), dim = indices)
+#' arrT <- as.tensor(arr)
+#' arrT
+as.tensor <- function(x, drop = FALSE) {
+    # Validate that input x is an array, matrix, or vector
+    stopifnot(is.array(x) || is.vector(x))
+
+    # Define the modes and number of modes based on the structure of x
+    if (is.vector(x)) {
+        modes <- c(length(x))
+        num_modes <- 1L
+    } else {
+        modes <- dim(x)
+        num_modes <- length(modes)
+        
+        # Handle dropping of singleton dimensions
+        if (drop) {
+            dim1s <- which(modes == 1)
+            if (length(dim1s) > 0) {
+                modes <- modes[-dim1s]
+                num_modes <- num_modes - length(dim1s)
+            }
+        }
+    }
+
+    # Create a new Tensor-class object with the specified modes and data
+    new("Tensor", num_modes = num_modes, modes = modes, data = array(x, dim = modes))
+}
+
+
+
