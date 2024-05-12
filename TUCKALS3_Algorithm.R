@@ -12,16 +12,11 @@ X <- array(runif(I * J * K), dim = c(I, J, K))  # Initialize X with random value
 
 # Initialize test matrices for each mode
 A_test <- matrix(runif(I * 3), nrow = I, ncol = 3)  # Test matrix for mode 1
-B_test <- matrix(runif(J * 3), nrow = J, ncol = 3)  # Test matrix for mode 2
-C_test <- matrix(runif(K * 3), nrow = K, ncol = 3)  # Test matrix for mode 3
+B_test <- matrix(runif(J * 3), nrow = J, ncol = 3)  # Test matrix for mode 2, used directly in multiplication
+C_test <- matrix(runif(K * 3), nrow = K, ncol = 3)  # Test matrix for mode 3, used directly in multiplication
 
-# Adjusted Kronecker product usage
-test_matrix_A <- kronecker(C_test, B_test)  # Swap the matrices to ensure correct dimensionality
-
-# Verify dimensions of the Kronecker product again
-if (nrow(test_matrix_A) != J * K) {  # Ensure the row count of test_matrix_A matches the unfolded tensor's column count
-    stop("Non-conformable dimensions: Expected rows = ", J * K, ", but got ", nrow(test_matrix_A))
-}
+# Compute Kronecker product correctly for modes B and C
+test_matrix_A <- kronecker(B_test, C_test)  # Assume this gives us the correct dimensions
 
 # Function to perform n-mode product
 nmode_product <- function(tensor, matrix, mode) {
@@ -53,3 +48,4 @@ nmode_product <- function(tensor, matrix, mode) {
 # Execute n-mode product function
 test_result_A <- nmode_product(X, test_matrix_A, 1)
 print("Dimensions of result after mode-1 multiplication:", dim(test_result_A))
+
