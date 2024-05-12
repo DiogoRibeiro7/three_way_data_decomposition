@@ -474,3 +474,91 @@ setMethod(
   }
 )
 
+# Overload elementwise operators for the 'Tensor' class
+# This functionality enhances the ability to perform basic arithmetic operations (such as addition, subtraction,
+# multiplication, and division) between Tensors themselves and between Tensors and other data types (arrays and numerics).
+# These methods ensure that the operations are compatible with the dimensions and structure of the Tensor objects,
+# promoting data integrity and ease of mathematical operations in data analysis and scientific computing contexts.
+
+# Tensor and Tensor operation
+# Performs the specified arithmetic operation (like +, -, *, /) between two Tensors.
+# Both tensors must have compatible dimensions (i.e., their structures must allow the elementwise operation).
+# @param e1 A Tensor object.
+# @param e2 Another Tensor object.
+# @return Returns a Tensor object after performing the specified operation.
+setMethod("Ops", signature(e1 = "Tensor", e2 = "Tensor"),
+  definition = function(e1, e2) {
+    # Apply the operation to the data of both tensors
+    e1@data <- callGeneric(e1@data, e2@data)
+    # Validate the result to ensure structural integrity
+    validObject(e1)
+    return(e1)
+  }
+)
+
+# Tensor and Array operation
+# Performs the specified arithmetic operation between a Tensor and an array.
+# The array must be conformable to the Tensor's dimension.
+# @param e1 A Tensor object.
+# @param e2 An array that can be broadcast to match the Tensor's dimensions.
+# @return Returns the modified Tensor object.
+setMethod("Ops", signature(e1 = "Tensor", e2 = "array"),
+  definition = function(e1, e2) {
+    # Apply the operation between tensor data and array
+    e1@data <- callGeneric(e1@data, e2)
+    # Validate to ensure no corruption of the tensor's structure
+    validObject(e1)
+    return(e1)
+  }
+)
+
+# Array and Tensor operation
+# Performs the specified operation between an array and a Tensor, with the array as the left-hand operand.
+# Array dimensions must be conformable to those of the Tensor.
+# @param e1 An array.
+# @param e2 A Tensor object.
+# @return Returns the modified Tensor object.
+setMethod("Ops", signature(e1 = "array", e2 = "Tensor"),
+  definition = function(e1, e2) {
+    # Apply the operation with the array as the left operand
+    e2@data <- callGeneric(e1, e2@data)
+    # Validate the Tensor after operation
+    validObject(e2)
+    return(e2)
+  }
+)
+
+# Tensor and Numeric operation
+# Performs the specified arithmetic operation between a Tensor and a numeric value.
+# The operation is broadcast across all elements of the Tensor.
+# @param e1 A Tensor object.
+# @param e2 A numeric value.
+# @return Returns the modified Tensor object.
+setMethod("Ops", signature(e1 = "Tensor", e2 = "numeric"),
+  definition = function(e1, e2) {
+    # Apply the operation to each element of the tensor data
+    e1@data <- callGeneric(e1@data, e2)
+    # Validate the tensor to ensure data consistency
+    validObject(e1)
+    return(e1)
+  }
+)
+
+# Numeric and Tensor operation
+# Performs the specified arithmetic operation between a numeric value and a Tensor,
+# with the numeric value as the left-hand operand.
+# This operation broadcasts the numeric value across all elements of the Tensor.
+# @param e1 A numeric value.
+# @param e2 A Tensor object.
+# @return Returns the modified Tensor object.
+setMethod("Ops", signature(e1 = "numeric", e2 = "Tensor"),
+  definition = function(e1, e2) {
+    # Numeric value affects each element of the tensor data
+    e2@data <- callGeneric(e1, e2@data)
+    # Validate to check the integrity of the tensor post-modification
+    validObject(e2)
+    return(e2)
+  }
+)
+
+
