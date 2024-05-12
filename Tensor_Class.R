@@ -681,3 +681,37 @@ setMethod("fnorm", signature = "Tensor",
   }
 )
 
+
+# Define the 'innerProd' method for the 'Tensor' class
+# This method calculates the inner product of two tensors. For the operation to be valid,
+# both tensors must have the same dimensions. The inner product is the sum of the products
+# of their corresponding elements.
+#
+# @param tnsr1 The first 'Tensor' object.
+# @param tnsr2 The second 'Tensor' object, which must have the same dimensions as tnsr1.
+# @return Returns the inner product as a numeric value.
+# @examples
+# tnsr1 <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# tnsr2 <- rand_tensor(c(3, 4, 5))
+# product_value <- innerProd(tnsr1, tnsr2)
+# @rdname innerProd-methods
+# @aliases innerProd,Tensor,Tensor-method
+setMethod("innerProd", signature = c(tnsr1 = "Tensor", tnsr2 = "Tensor"),
+  definition = function(tnsr1, tnsr2) {
+    # Ensure that both tensors have the same dimensions
+    if (!all(tnsr1@modes == tnsr2@modes)) {
+      stop("The dimensions of the two tensors must match for the inner product.")
+    }
+
+    # Retrieve the data from both tensors
+    arr1 <- tnsr1@data
+    arr2 <- tnsr2@data
+
+    # Calculate the inner product: sum of element-wise products
+    inner_product <- sum(arr1 * arr2)
+
+    # Return the computed inner product
+    return(inner_product)
+  }
+)
+
