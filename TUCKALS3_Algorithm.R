@@ -12,11 +12,14 @@ X <- array(runif(I * J * K), dim = c(I, J, K))  # Initialize X with random value
 
 # Initialize test matrices for each mode
 A_test <- matrix(runif(I * 3), nrow = I, ncol = 3)  # Test matrix for mode 1
-B_test <- matrix(runif(J * 3), nrow = J, ncol = 3)  # Test matrix for mode 2, used directly in multiplication
-C_test <- matrix(runif(K * 3), nrow = K, ncol = 3)  # Test matrix for mode 3, used directly in multiplication
+B_test <- matrix(runif(J * 3), nrow = J, ncol = 3)  # Test matrix for mode 2
+C_test <- matrix(runif(K * 3), nrow = K, ncol = 3)  # Test matrix for mode 3
 
 # Compute Kronecker product correctly for modes B and C
-test_matrix_A <- kronecker(B_test, C_test)  # Assume this gives us the correct dimensions
+test_matrix_A <- kronecker(B_test, C_test)  # Assume this gives us a matrix with 12 rows
+
+# Transpose the Kronecker product matrix to fit the multiplication requirements
+test_matrix_A_transposed <- t(test_matrix_A)  # Transpose to make it 12 x 9
 
 # Function to perform n-mode product
 nmode_product <- function(tensor, matrix, mode) {
@@ -46,6 +49,6 @@ nmode_product <- function(tensor, matrix, mode) {
 }
 
 # Execute n-mode product function
-test_result_A <- nmode_product(X, test_matrix_A, 1)
+test_result_A <- nmode_product(X, test_matrix_A_transposed, 1)
 print("Dimensions of result after mode-1 multiplication:", dim(test_result_A))
 
