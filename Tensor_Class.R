@@ -562,3 +562,122 @@ setMethod("Ops", signature(e1 = "numeric", e2 = "Tensor"),
 )
 
 
+# Define the 'modeSum' method for the 'Tensor' class
+# This method computes the sum of elements along a specified mode (dimension) of a tensor.
+# The resulting tensor has the dimension of the specified mode reduced to 1, essentially collapsing that dimension.
+#
+# @param tnsr A 'Tensor' object on which the sum is computed.
+# @param m The mode (dimension) over which to compute the sum.
+#   Must be a valid mode within the tensor's dimensions.
+# @param drop Logical, indicating whether to drop singleton dimensions after the operation.
+# @return Returns a new 'Tensor' object with the specified mode summed and potentially dimensions dropped.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Random tensor initialization for example purpose
+# mode_summed_tensor <- modeSum(tnsr, m=2)
+# @rdname modeSum-methods
+# @aliases modeSum,Tensor-method
+setMethod("modeSum", signature = "Tensor",
+  definition = function(tnsr, m = NULL, drop = FALSE) {
+    # Ensure the mode 'm' is specified
+    if (is.null(m)) {
+      stop("must specify mode 'm'")
+    }
+
+    # Retrieve the number of modes (dimensions) of the tensor
+    num_modes <- tnsr@num_modes
+
+    # Check if 'm' is within the bounds of the tensor's dimensions
+    if (m < 1 || m > num_modes) {
+      stop("mode 'm' out of bounds")
+    }
+
+    # Permute dimensions so the specified mode 'm' is the first dimension for easier summation
+    perm <- c(m, (1L:num_modes)[-m])
+    modes <- tnsr@modes
+
+    # Calculate the new dimensions of the tensor after summing over mode 'm'
+    newmodes <- modes
+    newmodes[m] <- 1
+
+    # Perform the sum over the specified mode
+    arr <- array(colSums(aperm(tnsr@data, perm), dims = 1L), dim = newmodes)
+
+    # Convert the resulting array back to a tensor, optionally dropping singleton dimensions
+    as.tensor(arr, drop = drop)
+  }
+)
+
+
+# Define the 'modeMean' method for the 'Tensor' class
+# This method calculates the mean of elements along a specified mode (dimension) of a tensor.
+# The resulting tensor has the dimension of the specified mode reduced to 1,
+# collapsing that dimension by averaging instead of summing.
+#
+# @param tnsr A 'Tensor' object on which the mean is computed.
+# @param m The mode (dimension) over which to compute the mean.
+#   Must be a valid mode within the tensor's dimensions.
+# @param drop Logical, indicating whether to drop singleton dimensions after the operation.
+# @return Returns a new 'Tensor' object with the specified mode averaged and potentially dimensions dropped.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Random tensor initialization for example purpose
+# mode_mean_tensor <- modeMean(tnsr, m=2)
+# @rdname modeMean-methods
+# @aliases modeMean,Tensor-method
+setMethod("modeMean", signature = "Tensor",
+  definition = function(tnsr, m = NULL, drop = FALSE) {
+    # Ensure the mode 'm' is specified
+    if (is.null(m)) {
+      stop("must specify mode 'm'")
+    }
+
+    # Retrieve the number of modes (dimensions) of the tensor
+    num_modes <- tnsr@num_modes
+
+    # Check if 'm' is within the bounds of the tensor's dimensions
+    if (m < 1 || m > num_modes) {
+      stop("mode 'm' out of bounds")
+    }
+
+    # Permute dimensions so the specified mode 'm' is the first dimension for easier averaging
+    perm <- c(m, (1L:num_modes)[-m])
+    modes <- tnsr@modes
+
+    # Calculate the new dimensions of the tensor after averaging over mode 'm'
+    newmodes <- modes
+    newmodes[m] <- 1
+
+    # Perform the averaging over the specified mode
+    sum_arr <- array(colSums(aperm(tnsr@data, perm), dims = 1L), dim = newmodes)
+    mean_arr <- sum_arr / modes[m]  # Divide by the size of the dimension to get the mean
+
+    # Convert the resulting array back to a tensor, optionally dropping singleton dimensions
+    as.tensor(mean_arr, drop = drop)
+  }
+)
+
+
+# Define the 'fnorm' method for the 'Tensor' class
+# This method calculates the Frobenius norm of a tensor, which is equivalent to the Euclidean norm
+# of a vector but generalized for matrices and higher-dimensional arrays.
+# The Frobenius norm is computed as the square root of the sum of the absolute squares of its elements.
+#
+# @param tnsr A 'Tensor' object whose Frobenius norm is to be calculated.
+# @return Returns the Frobenius norm as a numeric value.
+# @examples
+# tnsr <- rand_tensor(c(3, 4, 5))  # Assume a function to generate a random tensor
+# norm_value <- fnorm(tnsr)
+# @rdname fnorm-methods
+# @aliases fnorm,Tensor-method
+setMethod("fnorm", signature = "Tensor",
+  definition = function(tnsr) {
+    # Retrieve the data from the Tensor object
+    arr <- tnsr@data
+
+    # Compute the Frobenius norm: sqrt of the sum of squares of all elements
+    frob_norm <- sqrt(sum(arr * arr))
+
+    # Return the computed Frobenius norm
+    return(frob_norm)
+  }
+)
+
