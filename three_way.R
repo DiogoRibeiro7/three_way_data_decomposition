@@ -299,22 +299,3 @@ print(cp_results$A)
 print(cp_results$B)
 print(cp_results$C)
 print(cp_results$lambda)
-
-
-
-# Assuming 'X' is a tensor you want to decompose
-X <- as.tensor(array(runif(24), dim = c(3, 4, 2)))
-
-# Try-Catch to handle any potential errors gracefully
-tryCatch({
-    cp_result <- cp(X, num_components = 2)
-    # Access components safely
-    if ("lambda" %in% names(cp_result)) {
-        lambdas <- cp_result$lambda
-        print(lambdas)
-    } else {
-        print("Lambda values are not available in the result.")
-    }
-}, error = function(e) {
-    print(paste("An error occurred:", e$message))
-})
