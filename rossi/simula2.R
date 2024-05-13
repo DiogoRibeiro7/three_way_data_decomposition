@@ -1,3 +1,41 @@
+#' Simulate Data and Evaluate Clustering Models (Extended Version)
+#'
+#' This function simulates datasets according to specified Gaussian mixture models
+#' and evaluates the performance of various clustering methods, including K-means,
+#' and placeholders for T3MIXS and T2MIXT. This version allows for more complex
+#' dataset structures and model evaluations.
+#'
+#' @param N Integer, number of observations to generate.
+#' @param G Integer, number of clusters or groups.
+#' @param nrep Integer, number of starting points for the clustering algorithms.
+#' @param dgp Integer, specifying the data generating process:
+#'   \itemize{
+#'     \item 1: True model with both correct mean and covariance structure.
+#'     \item 2: True covariance structure, but false mean structure.
+#'     \item 3: True mean structure, but false covariance structure.
+#'     \item 4: Both mean and covariance structures are false.
+#'   }
+#' @param ns Integer, number of simulations to perform (default is 100).
+#'
+#' @return A list containing:
+#'   \itemize{
+#'     \item \code{ari}: Matrix of Adjusted Rand Indices for each model and simulation.
+#'     \item \code{Xt}: Array of simulated datasets, dimensioned as N by (J*K) by ns.
+#'     \item \code{Utruet}: Array of true clustering matrices, dimensioned as N by G by ns.
+#'   }
+#'
+#' @details The function sets up the simulation parameters for generating data
+#' from Gaussian mixtures with a specified structure and evaluates different
+#' clustering models. This includes an application of kmeans and placeholders
+#' for more sophisticated models like T3MIXS and T2MIXT, which should be defined
+#' by the user as needed.
+#'
+#' @examples
+#' # Run a simulation with a simple scenario
+#' result <- simula2(N = 100, G = 3, nrep = 10, dgp = 1, ns = 50)
+#' print(result$ari)  # Adjusted Rand Index for each model and simulation
+#'
+#' @export
 simula2 <- function(N, G, nrep, dgp, ns = 100) {
     # Constants and setup
     J <- 20
