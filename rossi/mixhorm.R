@@ -1,4 +1,47 @@
-
+#' Homoscedastic Gaussian Mixture Model Estimation
+#'
+#' This function performs parameter estimation for a homoscedastic Gaussian mixture model
+#' using maximum likelihood estimation penalized by the Inverse Wishart prior. The model
+#' is intended for cases where all components of the mixture are assumed to share the
+#' same covariance structure.
+#'
+#' @param X A numeric matrix where each row corresponds to an observation and each column to a variable.
+#' @param U A matrix of initial guesses for posterior probabilities where rows correspond to observations
+#'   and columns to mixture components.
+#' @param eps Convergence threshold for the likelihood increase between successive iterations.
+#' @param dis Binary indicator (0 or 1) whether to display detailed iteration output (default is 0).
+#'
+#' @return A list containing:
+#'   \itemize{
+#'     \item \code{U}: Updated matrix of posterior probabilities.
+#'     \item \code{Mmu}: Matrix of component means, each row corresponding to a mixture component.
+#'     \item \code{Sig}: Shared covariance matrix estimated across all mixture components.
+#'     \item \code{dif}: Difference in log-likelihood between the last two iterations.
+#'     \item \code{like}: Final log-likelihood of the model.
+#'     \item \code{bic}: Bayesian Information Criterion for the model.
+#'     \item \code{it}: Number of iterations performed.
+#'   }
+#'
+#' @details The algorithm iteratively updates the mean vectors, shared covariance matrix, and
+#'   posterior probabilities until the change in log-likelihood is less than \code{eps}. It computes
+#'   the BIC and AIC for model selection purposes. If \code{dis} is set to 1, it also prints the
+#'   progress of the algorithm at each iteration.
+#'
+#' @examples
+#' # Simulate some data from a Gaussian mixture model
+#' set.seed(123)
+#' n <- 100
+#' J <- 2
+#' G <- 2
+#' X <- matrix(rnorm(n * J), n, J)
+#' U <- matrix(runif(n * G), n, G)
+#' U <- sweep(U, 1, rowSums(U), "/")
+#' eps <- 1e-6
+#' dis <- 1
+#' result <- mixhom(X, U, eps, dis)
+#' print(result)
+#'
+#' @export
 mixhom <- function(X, U, eps, dis) {
   # Initialize variables
   n <- nrow(X)
