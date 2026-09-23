@@ -2,7 +2,6 @@
 ^mpca\.R$
 ^rossi$
 ^t_svd_recontruct\.R$
-^tensor_decomp\.R$
 ^tensor_svc\.R$
 ^test_tuckal\.r$
 ^tuckal\.R$
