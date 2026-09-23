@@ -123,115 +123,129 @@ complex_matrix_operations <- function(A, B, C, G, I, J, K, P, Q, R) {
     )
 }
 
-
 #' Perform CANDECOMP/PARAFAC (CP) Decomposition
 #'
-#' This function computes the CP decomposition of a tensor using the `cp` function from the `rTensor` package.
-#' It is designed to handle the output whether it is returned as a list or an S4 object, extracting the factor matrices
-#' and lambda coefficients. The function ensures the input is a tensor and performs the decomposition,
-#' handling different return types gracefully.
+#' Adapt a three-mode tensor to the CP decomposition implemented by
+#' `rTensor::cp()` and return the three factor matrices with their component
+#' weights.
 #'
-#' @param X The tensor to decompose, which should be of class `Tensor`.
-#' @param R The rank (number of components) for the CP decomposition.
-#' @param max_iter Maximum number of iterations for the CP algorithm.
-#' @param conv_eps Convergence threshold for stopping the algorithm.
-#' @return A list containing the following elements:
-#'   - `A`: The factor matrix corresponding to the first mode.
-#'   - `B`: The factor matrix corresponding to the second mode.
-#'   - `C`: The factor matrix corresponding to the third mode.
-#'   - `lambda`: Coefficients associated with each component.
+#' @param X A numeric three-dimensional array or an `rTensor::Tensor` object.
+#' @param R Positive integer giving the number of CP components.
+#' @param max_iter Integer greater than or equal to 2 giving the maximum number
+#'   of ALS iterations.
+#' @param conv_eps Positive convergence tolerance passed to `rTensor::cp()`.
+#' @return A list containing:
+#'   - `A`: factor matrix for the first mode.
+#'   - `B`: factor matrix for the second mode.
+#'   - `C`: factor matrix for the third mode.
+#'   - `lambda`: component weights returned by `rTensor::cp()`.
 #' @examples
-#' # Create a random tensor
 #' set.seed(123)
-#' X <- as.tensor(array(rnorm(2 * 3 * 4), dim = c(2, 3, 4)))
-#' # Perform CP decomposition
-#' result <- CPfunc(X, R = 2, max_iter = 1000, conv_eps = 1e-6)
-#' print(result)
+#' X <- array(rnorm(2 * 3 * 4), dim = c(2, 3, 4))
+#' result <- CPfunc(X, R = 2, max_iter = 25, conv_eps = 1e-5)
 #' @export
-#' @import rTensor
-CPfunc <- function(X, R, max_iter, conv_eps) {
-    # Ensure X is a tensor
-    if (!inherits(X, "Tensor")) {
-        X <- as.tensor(X)
+CPfunc <- function(X, R, max_iter = 25L, conv_eps = 1e-5) {
+  if (!inherits(X, "Tensor")) {
+    if (!is.array(X) || !is.numeric(X)) {
+      stop("X must be a numeric array or an rTensor Tensor.")
     }
+    X <- rTensor::as.tensor(X)
+  }
 
-    # Perform CP decomposition
-    cp_result <- cp(X, num_components = R, max_iter = max_iter, tol = conv_eps)
+  if (X@num_modes != 3L) {
+    stop("CPfunc currently supports only three-mode tensors.")
+  }
+  if (!is.numeric(X@data)) {
+    stop("X must contain numeric data.")
+  }
 
-    # Initialize variables
-    A <- B <- C <- lambda <- NULL
+  if (
+    !is.numeric(R) ||
+      length(R) != 1L ||
+      is.na(R) ||
+      !is.finite(R) ||
+      R <= 0 ||
+      R %% 1 != 0
+  ) {
+    stop("R must be a positive integer.")
+  }
 
-    # Check the type of cp_result and handle accordingly
-    if (is.list(cp_result)) {
-        # List output handling
-        if (all(c("U", "lambda") %in% names(cp_result))) {
-            A = cp_result$U[[1]]
-            B = cp_result$U[[2]]
-            C = cp_result$U[[3]]
-            lambda = cp_result$lambda
-        } else {
-            stop("Expected components 'U' and 'lambda' are missing from the cp_result list.")
-        }
-    } else if (is(cp_result, "whatever_S4_class")) {  # Adjust as needed
-        # S4 object handling
-        A = cp_result@U[[1]]
-        B = cp_result@U[[2]]
-        C = cp_result@U[[3]]
-        lambda = cp_result@lambda
-    } else {
-        stop("cp_result is neither a list nor the expected S4 object.")
-    }
+  if (
+    !is.numeric(max_iter) ||
+      length(max_iter) != 1L ||
+      is.na(max_iter) ||
+      !is.finite(max_iter) ||
+      max_iter < 2 ||
+      max_iter %% 1 != 0
+  ) {
+    stop("max_iter must be an integer greater than or equal to 2.")
+  }
 
-    # Return the formatted result
-    result <- list(
-        A = A,
-        B = B,
-        C = C,
-        lambda = lambda
-    )
+  if (
+    !is.numeric(conv_eps) ||
+      length(conv_eps) != 1L ||
+      is.na(conv_eps) ||
+      !is.finite(conv_eps) ||
+      conv_eps <= 0
+  ) {
+    stop("conv_eps must be a positive finite number.")
+  }
 
-    return(result)
+  cp_result <- rTensor::cp(
+    X,
+    num_components = as.integer(R),
+    max_iter = as.integer(max_iter),
+    tol = conv_eps
+  )
+
+  if (
+    !is.list(cp_result) ||
+      !all(c("U", "lambdas") %in% names(cp_result)) ||
+      length(cp_result$U) != 3L
+  ) {
+    stop("Unexpected result returned by rTensor::cp().")
+  }
+
+  list(
+    A = cp_result$U[[1L]],
+    B = cp_result$U[[2L]],
+    C = cp_result$U[[3L]],
+    lambda = cp_result$lambdas
+  )
 }
 
 
 #' Wrapper for CP Decomposition
 #'
-#' This function serves as a wrapper for the `CPfunc`, simplifying the input process and
-#' directly accessing the CP decomposition results. It is particularly useful for managing
-#' the decomposition process by specifying dimensions and convergence parameters.
+#' Convenience wrapper around `CPfunc()` retaining the historical `dims`
+#' argument name for the CP rank.
 #'
-#' @param X A tensor on which CP decomposition is to be performed.
-#' @param dims A vector indicating the desired dimensions (rank) for the decomposition.
-#' @param max_iter Maximum number of iterations for the CP decomposition algorithm.
-#' @param conv_eps Convergence threshold for the CP decomposition algorithm.
-#' @return A list containing the decomposed components:
-#'   - `A`: Factor matrix from the first mode.
-#'   - `B`: Factor matrix from the second mode.
-#'   - `C`: Factor matrix from the third mode.
-#'   - `lambda`: Coefficients associated with each component of the decomposition.
+#' @param X A numeric three-dimensional array or an `rTensor::Tensor` object.
+#' @param dims Positive scalar giving the CP rank.
+#' @param max_iter Integer greater than or equal to 2 giving the maximum number
+#'   of ALS iterations.
+#' @param conv_eps Positive convergence tolerance.
+#' @return The same four-element list returned by `CPfunc()`.
 #' @examples
 #' set.seed(123)
-#' X <- as.tensor(array(rnorm(2 * 3 * 4), dim = c(2, 3, 4)))
-#' result <- cp_decomposition_wrapper(X, dims = c(2), max_iter = 1000, conv_eps = 1e-6)
-#' print(result)
+#' X <- array(rnorm(2 * 3 * 4), dim = c(2, 3, 4))
+#' result <- cp_decomposition_wrapper(
+#'   X,
+#'   dims = 2,
+#'   max_iter = 25,
+#'   conv_eps = 1e-5
+#' )
 #' @export
-cp_decomposition_wrapper <- function(X, dims, max_iter, conv_eps) {
-    # Validate inputs
-    if (!is(X, "Tensor")) {
-        stop("Input X must be a Tensor.")
-    }
-    if (!is.numeric(dims) || length(dims) != 1) {
-        stop("Dims should be a numeric vector of length 1 indicating the rank.")
-    }
-
-    # Call CPfunc to perform the decomposition
-    op <- CPfunc(X, dims[[1]], max_iter, conv_eps)
-
-    # Return a list of the results
-    list(
-        A = op$A,
-        B = op$B,
-        C = op$C,
-        lambda = op$lambda
-    )
+cp_decomposition_wrapper <- function(
+  X,
+  dims,
+  max_iter = 25L,
+  conv_eps = 1e-5
+) {
+  CPfunc(
+    X = X,
+    R = dims,
+    max_iter = max_iter,
+    conv_eps = conv_eps
+  )
 }
