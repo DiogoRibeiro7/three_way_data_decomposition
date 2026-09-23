@@ -1,50 +1,47 @@
 # Three-Way Data Decomposition
 
-Research code for multilinear data analysis, tensor decomposition, and related methods for three-way and higher-order data.
+R implementation, validation framework, and research extensions for simultaneous clustering and dimensionality reduction of three-way data.
 
-The repository currently contains implementations and experiments around tensor representations, CP and Tucker decompositions, higher-order SVD, multilinear principal component analysis, tensor support vector methods, and kernel-based clustering. The long-term goal is to turn the useful numerical routines into a small, tested R package while preserving exploratory material separately.
+The statistical baseline is the Simultaneous Clustering and Reduction (SCR) model developed by Roberto Rocci, Maurizio Vichi, and Monia Ranalli in *Mixture models for simultaneous classification and reduction of three-way data*, Computational Statistics 40, 469–507 (2025), DOI: 10.1007/s00180-024-01478-1.
 
-## Scope
+This repository is not intended to be a generic collection of tensor algorithms. Tensor decompositions are supporting numerical machinery. The primary objective is to reproduce the SCR methodology faithfully in R, validate it against the authors' MATLAB reference implementation, and then develop statistically meaningful extensions.
 
-The current code covers several related areas:
+## Statistical baseline
 
-- tensor construction and matricisation;
-- Kronecker and Khatri-Rao products;
-- CANDECOMP/PARAFAC decomposition;
-- Tucker decomposition and HOSVD;
-- multilinear principal component analysis;
-- tensor reconstruction;
-- tensor-based classification experiments;
-- kernel clustering experiments.
+The baseline comparison contains three models:
 
-The repository is being modernised incrementally. Some files are still exploratory scripts rather than stable library code.
+- **S3**: three-way SCR, with Tucker2 structure on the group means and a Kronecker-structured common covariance;
+- **S2**: two-way SCR applied to the vectorised three-way observations;
+- **H**: ordinary homoscedastic Gaussian mixture model.
 
-## Current structure
+The legacy R files under `rossi/` are a port of the authors' public MATLAB code in `moniar412/SCR3waydata`. They are currently treated as reference material, not yet as validated package code.
 
-Most implementation files currently live at the repository root. This reflects the historical development of the project rather than the intended final architecture.
+## Repository layers
 
-In particular, some files mix reusable functions with executable examples or manual checks. Those concerns will be separated before the algorithms are extended.
+- `R/`: tested package API and shared numerical infrastructure;
+- `tests/testthat/`: deterministic tests and numerical regression tests;
+- `rossi/`: legacy R translation of the original SCR reference implementation;
+- simulation and reproducibility code: to be rebuilt from the legacy scripts after the baseline port has been validated.
 
-## Modernisation plan
+The detailed model-to-code map, known porting discrepancies, and research roadmap are documented in [docs/scr-research-program.md](docs/scr-research-program.md).
 
-The cleanup will proceed in small changes:
+## Research programme
 
-1. define the supported statistical and numerical scope;
-2. separate reusable functions from experiments and examples;
-3. introduce a conventional R package layout;
-4. add deterministic unit tests for tensor algebra and decompositions;
-5. add automated package checks and linting;
-6. review numerical stability, convergence criteria, and input validation;
-7. document the mathematical assumptions and references for each method;
-8. add reproducible examples and benchmarks.
+Development proceeds in two stages.
 
-Algorithmic changes will be kept separate from repository-structure changes so that numerical behaviour can be reviewed independently.
+First, the repository will establish a faithful R reproduction of S3, S2, H, the two simulation scenarios, and the ARI experiments reported in the paper. Numerical equivalence with the MATLAB reference implementation is the acceptance criterion.
 
-## References
+Second, the SCR formulation will be used as a baseline for extensions. Candidate directions include centroid-mode reduction through Tucker3, joint model selection over clustering and reduction dimensions, controlled departures from exact Kronecker covariance structure, and robust or sparse variants. Extensions will be implemented only after the baseline is reproducible.
 
-The implementations draw on standard results from multilinear algebra and tensor decomposition, including work on CP/PARAFAC, Tucker decomposition, HOSVD, and multilinear principal component analysis.
+## Package status
 
-More detailed references will be attached to the corresponding methods as the package structure is introduced.
+The package infrastructure is being modernised incrementally. Existing wrappers around `rTensor` provide supporting tensor decompositions, but these are not the scientific contribution of the project.
+
+The SCR algorithms themselves are still under reconstruction and should not yet be treated as validated production implementations.
+
+## Reference
+
+Rocci, R., Vichi, M. & Ranalli, M. (2025). *Mixture models for simultaneous classification and reduction of three-way data*. Computational Statistics, 40, 469–507. https://doi.org/10.1007/s00180-024-01478-1
 
 ## License
 
