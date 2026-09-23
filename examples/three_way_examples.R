@@ -1,10 +1,10 @@
-# Manual examples for three_way.R
+# Manual examples for the threeway package code
 #
 # These examples are intentionally kept outside the reusable implementation so
 # sourcing three_way.R does not execute simulations, print output, or mutate the
 # global workspace.
 
-source("three_way.R")
+source("R/three_way.R")
 
 set.seed(123)
 

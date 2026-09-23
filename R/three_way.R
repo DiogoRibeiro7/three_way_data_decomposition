@@ -1,5 +1,3 @@
-library(rTensor)
-
 #' Perform Matrix Operations
 #'
 #' This function performs specific matrix operations including multiplication of a matrix and

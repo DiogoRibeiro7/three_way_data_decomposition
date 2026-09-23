@@ -1,0 +1,22 @@
+Package: threeway
+Type: Package
+Title: Multilinear Methods for Three-Way Data
+Version: 0.1.0.9000
+Authors@R:
+    person("Diogo", "Ribeiro", email = "diogo_dj@hotmail.com",
+           role = c("aut", "cre"))
+Description: Research implementations for tensor and multilinear data analysis,
+    including structured matrix operations, Kronecker products, and helpers for
+    CANDECOMP/PARAFAC decomposition. The package is being extracted
+    incrementally from a broader research codebase.
+License: MIT + file LICENSE
+URL: https://github.com/DiogoRibeiro7/three_way_data_decomposition
+BugReports: https://github.com/DiogoRibeiro7/three_way_data_decomposition/issues
+Depends:
+    R (>= 4.1.0)
+Imports:
+    methods,
+    rTensor
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
