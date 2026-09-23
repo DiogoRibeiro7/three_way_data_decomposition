@@ -1,0 +1,10 @@
+^Tensor_Class\.R$
+^kernel_clustering\.R$
+^mpca\.R$
+^rossi$
+^t_svd_recontruct\.R$
+^tensor_decomp\.R$
+^tensor_svc\.R$
+^test_tuckal\.r$
+^tuckal\.R$
+^examples$
