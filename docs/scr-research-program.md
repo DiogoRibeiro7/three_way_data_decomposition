@@ -211,7 +211,22 @@ and, for Tucker3 extensions,
 (G,P,Q,R).
 ]
 
-BIC is already present in the legacy code, but model selection should be made explicit and tested. ICL and stability criteria are natural additional candidates.
+The Tucker3 extension now exposes a fixed-(G) structural search through
+`scr_tucker3_rank_grid()` and `select_scr_tucker3_model()`. The first
+function constructs the admissible `(P,Q,R)` grid, while the second fits
+every candidate from the same initial membership matrix and covariance factors
+and selects by BIC.
+
+Because the group-centroid tensor is probability-weighted and centered at the
+grand mean, its group mode belongs to a contrast space with dimension at most
+`G - 1`. The structural search therefore enforces `P <= G - 1`, together
+with `Q <= J` and `R <= K`.
+
+The current BIC convention is `2 * logLik - log(n) * k`, so larger values are
+preferred. Candidate BIC values within a numerical tolerance are treated as a
+tie, with the model having fewer free parameters preferred. ICL and stability
+criteria remain natural additional candidates, and selection over `G` can be
+layered on top of the fixed-(G) interface.
 
 ### Controlled departures from exact Kronecker covariance
 
