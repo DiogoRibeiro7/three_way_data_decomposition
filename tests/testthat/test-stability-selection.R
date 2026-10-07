@@ -1,6 +1,9 @@
 test_that("Tucker3 stability is deterministic under a fixed seed", {
   set.seed(2801)
-  X <- matrix(rnorm(50 * 4), nrow = 50)
+  labels <- rep(1:2, each = 25)
+  means <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+  X <- means[labels, , drop = FALSE] +
+    matrix(rnorm(50 * 4, sd = 0.35), nrow = 50)
 
   first <- scr_tucker3_stability(
     X = X,
@@ -61,7 +64,10 @@ test_that("ARI stability comparison is invariant to label permutations", {
 
 test_that("fixed-rank stability records expected diagnostics", {
   set.seed(2802)
-  X <- matrix(rnorm(48 * 4), nrow = 48)
+  labels <- rep(1:2, each = 24)
+  means <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+  X <- means[labels, , drop = FALSE] +
+    matrix(rnorm(48 * 4, sd = 0.35), nrow = 48)
 
   result <- scr_tucker3_stability(
     X = X,
@@ -111,7 +117,14 @@ test_that("stability selector uses lower complexity for ties", {
 
 test_that("stability selector evaluates candidate ranks", {
   set.seed(2803)
-  X <- matrix(rnorm(45 * 4), nrow = 45)
+  labels <- rep(1:3, each = 15)
+  means <- rbind(
+    c(-2, 0, -1, 0),
+    c(0, 2, 0, 1),
+    c(2, 0, 1, 0)
+  )
+  X <- means[labels, , drop = FALSE] +
+    matrix(rnorm(45 * 4, sd = 0.35), nrow = 45)
 
   result <- select_scr_tucker3_stable(
     X = X,
