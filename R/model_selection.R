@@ -112,7 +112,7 @@ scr_tucker3_rank_grid <- function(
 #'   `criterion_tolerance`; when non-NULL it overrides that value.
 #' @param display Logical; print candidate progress when `TRUE`.
 #' @return A list with the complete comparison table, selected fitted model,
-#'   selected rank tuple, criterion name, and BIC tie tolerance.
+#'   selected rank tuple, criterion name/value, and tie tolerance.
 #' @export
 select_scr_tucker3_model <- function(
   X,
@@ -333,7 +333,7 @@ select_best_tucker3_candidate <- function(
       !all(required_columns %in% names(comparison))
   ) {
     stop(
-      "comparison must be a non-empty data frame with P, Q, R, parameters, and bic columns."
+      "comparison must contain P, Q, R, parameters, and the selected criterion column."
     )
   }
 
@@ -347,7 +347,7 @@ select_best_tucker3_candidate <- function(
       anyNA(comparison$parameters) ||
       any(!is.finite(comparison$parameters))
   ) {
-    stop("comparison must contain finite BIC values and parameter counts.")
+    stop("comparison must contain finite criterion values and parameter counts.")
   }
 
   best_value <- max(criterion_values)
