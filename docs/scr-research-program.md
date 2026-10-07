@@ -246,13 +246,41 @@ the same BIC or ICL convention with deterministic lower-complexity tie-breaking.
 
 ### Controlled departures from exact Kronecker covariance
 
-S3 assumes exact covariance separability. A broader family can introduce a parameterised or penalised departure from
+S3 assumes exact covariance separability. A broader family can introduce a
+parameterised or penalised departure from
 
 [
 \Sigma_O \otimes \Sigma_V
 ]
 
 while preserving the computational advantages of the three-way structure.
+
+The first covariance-extension layer now separates diagnosis from estimation.
+`scr_nearest_kronecker_covariance()` uses the Pitsianis--Van Loan
+rearrangement and a leading singular-value approximation to quantify departure
+from separability and recover normalized positive-definite covariance factors.
+It reports both relative Frobenius error and the fraction of rearranged-matrix
+energy captured by the rank-one Kronecker approximation.
+
+`scr_kronecker_nugget_covariance()` defines the first controlled departure
+family,
+
+[
+\Sigma(\tau)
+=
+\Sigma_O \otimes \Sigma_V
++
+\tau I,
+\qquad \tau \ge 0,
+]
+
+which preserves positive definiteness and adds only one covariance parameter.
+`scr_covariance_parameter_count()` makes the complexity difference between
+separable, nugget, and unrestricted common covariance models explicit.
+
+These utilities deliberately precede any change to the S3 or Tucker3 fitting
+algorithm. Joint estimation or profiling of \(\tau\) should be introduced
+only after the covariance geometry and parameter-count conventions are tested.
 
 ### Sparse discriminating subspaces
 
