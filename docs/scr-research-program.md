@@ -231,10 +231,14 @@ grand mean, its group mode belongs to a contrast space with dimension at most
 with `Q <= J` and `R <= K`.
 
 The current BIC convention is `2 * logLik - log(n) * k`, so larger values are
-preferred. Candidate BIC values within a numerical tolerance are treated as a
-tie, with the model having fewer free parameters preferred. ICL and stability
-criteria remain natural additional candidates, and selection over `G` can be
-layered on top of the fixed-(G) interface.
+preferred. Tucker3 structural selection also supports ICL using posterior
+classification entropy `H(U) = -sum(U * log(U))` and the matching convention
+`ICL = BIC - 2 * H(U)`. Larger ICL values are therefore preferred, while
+models with uncertain posterior assignments receive an additional penalty.
+BIC remains the default criterion for backward compatibility. Candidate
+criterion values within a numerical tolerance are treated as a tie, with the
+model having fewer free parameters preferred. Stability criteria and selection
+over `G` remain natural next layers on top of the fixed-(G) interface.
 
 ### Controlled departures from exact Kronecker covariance
 

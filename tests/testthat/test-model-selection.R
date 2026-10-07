@@ -145,3 +145,102 @@ test_that("Tucker3 model selection evaluates every candidate consistently", {
   )
   expect_true(selection$comparison$selected[expected_index])
 })
+
+
+test_that("classification entropy is zero for hard memberships", {
+  membership <- rbind(
+    c(1, 0, 0),
+    c(0, 1, 0),
+    c(0, 0, 1)
+  )
+
+  expect_equal(scr_classification_entropy(membership), 0)
+})
+
+
+test_that("diffuse memberships have larger classification entropy", {
+  hard <- rbind(c(1, 0), c(0, 1))
+  diffuse <- matrix(0.5, nrow = 2, ncol = 2)
+
+  expect_gt(
+    scr_classification_entropy(diffuse),
+    scr_classification_entropy(hard)
+  )
+})
+
+
+test_that("ICL does not exceed BIC under the package convention", {
+  membership <- matrix(c(0.8, 0.2, 0.4, 0.6), nrow = 2, byrow = TRUE)
+  bic <- 12
+  icl <- bic - 2 * scr_classification_entropy(membership)
+
+  expect_lte(icl, bic)
+})
+
+
+test_that("criterion selector can choose ICL independently of BIC", {
+  comparison <- data.frame(
+    P = c(1L, 2L),
+    Q = c(1L, 1L),
+    R = c(1L, 1L),
+    parameters = c(10L, 12L),
+    bic = c(100, 101),
+    icl = c(99, 95)
+  )
+
+  expect_equal(
+    threeway:::select_best_tucker3_candidate(
+      comparison,
+      criterion = "BIC",
+      criterion_tolerance = 1e-8
+    ),
+    2L
+  )
+  expect_equal(
+    threeway:::select_best_tucker3_candidate(
+      comparison,
+      criterion = "ICL",
+      criterion_tolerance = 1e-8
+    ),
+    1L
+  )
+})
+
+
+test_that("BIC remains the default structural criterion", {
+  set.seed(2021)
+
+  n <- 48L
+  groups <- 3L
+  variables <- 2L
+  occasions <- 2L
+  labels <- rep(seq_len(groups), each = n / groups)
+
+  means <- rbind(
+    c(-2, 0, -1, 0),
+    c(0, 2, 0, 1),
+    c(2, 0, 1, 0)
+  )
+  X <- means[labels, , drop = FALSE] +
+    matrix(rnorm(n * variables * occasions, sd = 0.5), nrow = n)
+
+  membership <- matrix(0.05, nrow = n, ncol = groups)
+  membership[cbind(seq_len(n), labels)] <- 0.9
+  membership <- membership / rowSums(membership)
+
+  result <- select_scr_tucker3_model(
+    X = X,
+    membership = membership,
+    variable_covariance = diag(variables),
+    occasion_covariance = diag(occasions),
+    centroid_ranks = c(1, 2),
+    variable_ranks = 1,
+    occasion_ranks = 1,
+    max_iter = 6,
+    inner_max_iter = 8
+  )
+
+  expect_equal(result$criterion, "BIC")
+  expect_true(all(c("entropy", "icl") %in% names(result$comparison)))
+  expect_true(all(result$comparison$icl <= result$comparison$bic + 1e-12))
+})

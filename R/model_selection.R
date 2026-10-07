@@ -73,10 +73,10 @@ scr_tucker3_rank_grid <- function(
 }
 
 
-#' Select Tucker3 SCR Structure by BIC
+#' Select Tucker3 SCR Structure
 #'
 #' Fit a fixed-G Tucker3 SCR model over a joint grid of centroid, variable,
-#' and occasion ranks and select the preferred structure by BIC.
+#' and occasion ranks and select the preferred structure by BIC or ICL.
 #'
 #' Every candidate is fitted from the same membership matrix and covariance
 #' factors. This prevents the structural comparison from being confounded by
@@ -86,9 +86,11 @@ scr_tucker3_rank_grid <- function(
 #'
 #' `BIC = 2 * logLik - log(n) * k`,
 #'
-#' so larger values are preferred. Candidates whose BIC values differ by no
-#' more than `bic_tolerance` are treated as tied; the model with fewer free
-#' parameters is then selected.
+#' so larger values are preferred. For ICL, classification entropy is
+#' `H(U) = -sum(U * log(U))` and the package uses
+#' `ICL = BIC - 2 * H(U)`, again with larger values preferred. Candidates
+#' whose active criterion values differ by no more than `criterion_tolerance`
+#' are treated as tied; the model with fewer free parameters is selected.
 #'
 #' @param X Numeric observation matrix with observations in rows.
 #' @param membership Initial posterior-membership matrix shared by all
@@ -103,11 +105,14 @@ scr_tucker3_rank_grid <- function(
 #' @param max_iter Positive maximum number of outer iterations.
 #' @param inner_max_iter Maximum HOOI iterations in each Tucker3 mean update.
 #' @param inner_tolerance Relative HOOI convergence tolerance.
-#' @param bic_tolerance Non-negative absolute tolerance used to identify BIC
-#'   ties before preferring the lower-dimensional model.
+#' @param criterion Model-selection criterion, either `"BIC"` or `"ICL"`.
+#' @param criterion_tolerance Non-negative absolute tolerance used to identify
+#'   criterion ties before preferring the lower-dimensional model.
+#' @param bic_tolerance Deprecated compatibility alias for
+#'   `criterion_tolerance`; when non-NULL it overrides that value.
 #' @param display Logical; print candidate progress when `TRUE`.
 #' @return A list with the complete comparison table, selected fitted model,
-#'   selected rank tuple, criterion name, and BIC tie tolerance.
+#'   selected rank tuple, criterion name/value, and tie tolerance.
 #' @export
 select_scr_tucker3_model <- function(
   X,
@@ -121,15 +126,22 @@ select_scr_tucker3_model <- function(
   max_iter = 1000L,
   inner_max_iter = 50L,
   inner_tolerance = 1e-8,
-  bic_tolerance = 1e-8,
+  criterion = c("BIC", "ICL"),
+  criterion_tolerance = 1e-8,
+  bic_tolerance = NULL,
   display = FALSE
 ) {
+  criterion <- match.arg(criterion)
+  if (!is.null(bic_tolerance)) {
+    criterion_tolerance <- bic_tolerance
+  }
+
   validate_model_selection_inputs(
     X = X,
     membership = membership,
     variable_covariance = variable_covariance,
     occasion_covariance = occasion_covariance,
-    bic_tolerance = bic_tolerance,
+    bic_tolerance = criterion_tolerance,
     display = display
   )
 
@@ -249,6 +261,9 @@ select_scr_tucker3_model <- function(
       )
     }
 
+    entropy <- scr_classification_entropy(fit$U)
+    icl <- fit$bic - 2 * entropy
+
     fits[[i]] <- fit
     rows[[i]] <- data.frame(
       P = P,
@@ -257,6 +272,8 @@ select_scr_tucker3_model <- function(
       parameters = grid$parameters[i],
       log_likelihood = fit$like,
       bic = fit$bic,
+      entropy = entropy,
+      icl = icl,
       converged = isTRUE(fit$converged),
       inner_converged = isTRUE(fit$inner_converged),
       iterations = as.integer(fit$it),
@@ -270,7 +287,8 @@ select_scr_tucker3_model <- function(
 
   selected_index <- select_best_tucker3_candidate(
     comparison,
-    bic_tolerance = bic_tolerance
+    criterion = criterion,
+    criterion_tolerance = criterion_tolerance
   )
   comparison$selected <- seq_len(nrow(comparison)) == selected_index
 
@@ -285,16 +303,29 @@ select_scr_tucker3_model <- function(
         Q = comparison$Q[selected_index],
         R = comparison$R[selected_index]
       ),
-      criterion = "BIC",
-      bic_tolerance = bic_tolerance
+      criterion = criterion,
+      criterion_value = comparison[[tolower(criterion)]][selected_index],
+      criterion_tolerance = criterion_tolerance,
+      bic_tolerance = criterion_tolerance
     ),
     class = "scr_tucker3_model_selection"
   )
 }
 
 
-select_best_tucker3_candidate <- function(comparison, bic_tolerance) {
-  required_columns <- c("P", "Q", "R", "parameters", "bic")
+select_best_tucker3_candidate <- function(
+  comparison,
+  criterion = c("BIC", "ICL"),
+  criterion_tolerance = 1e-8,
+  bic_tolerance = NULL
+) {
+  criterion <- match.arg(criterion)
+  if (!is.null(bic_tolerance)) {
+    criterion_tolerance <- bic_tolerance
+  }
+
+  criterion_column <- tolower(criterion)
+  required_columns <- c("P", "Q", "R", "parameters", criterion_column)
 
   if (
     !is.data.frame(comparison) ||
@@ -302,23 +333,25 @@ select_best_tucker3_candidate <- function(comparison, bic_tolerance) {
       !all(required_columns %in% names(comparison))
   ) {
     stop(
-      "comparison must be a non-empty data frame with P, Q, R, parameters, and bic columns."
+      "comparison must contain P, Q, R, parameters, and the selected criterion column."
     )
   }
 
-  validate_bic_tolerance(bic_tolerance)
+  validate_bic_tolerance(criterion_tolerance)
+
+  criterion_values <- comparison[[criterion_column]]
 
   if (
-    anyNA(comparison$bic) ||
-      any(!is.finite(comparison$bic)) ||
+    anyNA(criterion_values) ||
+      any(!is.finite(criterion_values)) ||
       anyNA(comparison$parameters) ||
       any(!is.finite(comparison$parameters))
   ) {
-    stop("comparison must contain finite BIC values and parameter counts.")
+    stop("comparison must contain finite criterion values and parameter counts.")
   }
 
-  best_bic <- max(comparison$bic)
-  tied <- which(best_bic - comparison$bic <= bic_tolerance)
+  best_value <- max(criterion_values)
+  tied <- which(best_value - criterion_values <= criterion_tolerance)
 
   rank_sum <- comparison$P[tied] +
     comparison$Q[tied] +
@@ -460,4 +493,40 @@ validate_bic_tolerance <- function(bic_tolerance) {
   }
 
   invisible(TRUE)
+}
+
+
+#' Classification Entropy for Mixture Memberships
+#'
+#' Compute the posterior classification entropy
+#' `H(U) = -sum_{i,g} u_ig log(u_ig)`.
+#'
+#' Zero-probability terms are interpreted by continuity as zero.
+#'
+#' @param membership Numeric posterior-membership matrix.
+#' @return A non-negative scalar entropy.
+#' @export
+scr_classification_entropy <- function(membership) {
+  if (
+    !is.matrix(membership) ||
+      !is.numeric(membership) ||
+      nrow(membership) < 1L ||
+      ncol(membership) < 2L ||
+      anyNA(membership) ||
+      any(!is.finite(membership)) ||
+      any(membership < 0)
+  ) {
+    stop("membership must be a finite non-negative numeric matrix.")
+  }
+
+  totals <- rowSums(membership)
+  if (any(totals <= 0)) {
+    stop("each membership row must have positive mass.")
+  }
+  if (max(abs(totals - 1)) > 1e-10) {
+    stop("each membership row must sum to one.")
+  }
+
+  positive <- membership > 0
+  as.numeric(-sum(membership[positive] * log(membership[positive])))
 }
