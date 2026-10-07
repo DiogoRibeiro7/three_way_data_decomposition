@@ -197,6 +197,14 @@ a_{gp} b_{jq} c_{kr}\eta_{pqr}.
 
 This becomes especially relevant as (G) grows. The extension requires identifiability constraints, an estimation algorithm, parameter counting, model selection, and comparison against S3.
 
+The first direct empirical comparison is implemented separately from the
+historical S3/S2/H reproduction. `compare_scr_tucker3_s3()` holds the
+variable and occasion ranks `(Q,R)` fixed across S3 and Tucker3 and lets
+Tucker3 select only the centroid rank `P`. This isolates the contribution of
+group-mode reduction. `run_scr_tucker3_benchmark()` reuses the validated SCR
+scenario generator and shared membership starts to repeat that paired
+comparison across simulated data sets.
+
 ### Joint structural model selection
 
 A useful general interface should allow comparison over
