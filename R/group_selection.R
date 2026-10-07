@@ -122,22 +122,34 @@ select_scr_tucker3_groups <- function(
         initializer = membership_initializer
       )
 
-      selection <- select_scr_tucker3_model(
-        X = X,
-        membership = membership,
-        variable_covariance = variable_covariance,
-        occasion_covariance = occasion_covariance,
-        centroid_ranks = P_candidates,
-        variable_ranks = variable_ranks,
-        occasion_ranks = occasion_ranks,
-        tolerance = tolerance,
-        max_iter = max_iter,
-        inner_max_iter = inner_max_iter,
-        inner_tolerance = inner_tolerance,
-        criterion = criterion,
-        criterion_tolerance = criterion_tolerance,
-        display = FALSE
+      selection <- tryCatch(
+        select_scr_tucker3_model(
+          X = X,
+          membership = membership,
+          variable_covariance = variable_covariance,
+          occasion_covariance = occasion_covariance,
+          centroid_ranks = P_candidates,
+          variable_ranks = variable_ranks,
+          occasion_ranks = occasion_ranks,
+          tolerance = tolerance,
+          max_iter = max_iter,
+          inner_max_iter = inner_max_iter,
+          inner_tolerance = inner_tolerance,
+          criterion = criterion,
+          criterion_tolerance = criterion_tolerance,
+          display = FALSE
+        ),
+        error = function(error) {
+          structure(
+            list(message = conditionMessage(error)),
+            class = "scr_tucker3_group_start_error"
+          )
+        }
       )
+
+      if (inherits(selection, "scr_tucker3_group_start_error")) {
+        next
+      }
 
       selected_row <- selection$comparison[
         selection$comparison$selected,
@@ -163,6 +175,17 @@ select_scr_tucker3_groups <- function(
       ) {
         best <- candidate
       }
+    }
+
+    if (is.null(best)) {
+      stop(
+        sprintf(
+          "all %d starts failed for groups = %d.",
+          n_starts,
+          G
+        ),
+        call. = FALSE
+      )
     }
 
     retained[[g_index]] <- best$selection
