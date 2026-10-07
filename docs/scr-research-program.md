@@ -242,7 +242,7 @@ Each candidate group count is evaluated with reproducible multi-start
 memberships, and the existing within-G `(P,Q,R)` selector is used unchanged.
 The best start is retained per `G`, then the resulting models are compared by
 the same BIC or ICL convention with deterministic lower-complexity tie-breaking.
-Stability criteria remain a natural next layer.
+`scr_tucker3_stability()` now provides a label-invariant subsampling stability diagnostic for a fixed `(G,P,Q,R)` structure, and `select_scr_tucker3_stable()` compares fixed-G rank candidates by mean pairwise adjusted Rand index on observations shared between resamples. This deliberately remains an additional diagnostic/selection layer rather than replacing BIC or ICL.
 
 ### Controlled departures from exact Kronecker covariance
 
