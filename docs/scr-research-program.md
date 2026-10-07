@@ -237,8 +237,12 @@ classification entropy `H(U) = -sum(U * log(U))` and the matching convention
 models with uncertain posterior assignments receive an additional penalty.
 BIC remains the default criterion for backward compatibility. Candidate
 criterion values within a numerical tolerance are treated as a tie, with the
-model having fewer free parameters preferred. Stability criteria and selection
-over `G` remain natural next layers on top of the fixed-(G) interface.
+model having fewer free parameters preferred. `select_scr_tucker3_groups()` now adds the outer selection layer over `G`.
+Each candidate group count is evaluated with reproducible multi-start
+memberships, and the existing within-G `(P,Q,R)` selector is used unchanged.
+The best start is retained per `G`, then the resulting models are compared by
+the same BIC or ICL convention with deterministic lower-complexity tie-breaking.
+Stability criteria remain a natural next layer.
 
 ### Controlled departures from exact Kronecker covariance
 
