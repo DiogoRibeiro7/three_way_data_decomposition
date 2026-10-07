@@ -118,7 +118,8 @@ test_that("outer criterion ties prefer the lower-complexity structure", {
 
 
 test_that("custom group membership initializers are supported", {
-  X <- matrix(seq_len(160) / 100, nrow = 40, ncol = 4)
+  set.seed(2603)
+  X <- matrix(rnorm(40 * 4), nrow = 40, ncol = 4)
 
   initializer <- function(X, groups, start, seed) {
     membership <- matrix(1, nrow = nrow(X), ncol = groups)
