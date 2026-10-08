@@ -1,14 +1,17 @@
-Package: threeway
+Package: scr3way
 Type: Package
-Title: Multilinear Methods for Three-Way Data
+Title: Simultaneous Clustering and Reduction for Three-Way Data
 Version: 0.1.0.9000
 Authors@R:
     person("Diogo", "Ribeiro", email = "diogo_dj@hotmail.com",
            role = c("aut", "cre"))
-Description: Research implementations for tensor and multilinear data analysis,
-    including structured matrix operations, Kronecker products, and helpers for
-    CANDECOMP/PARAFAC decomposition. The package is being extracted
-    incrementally from a broader research codebase.
+Description: Implements simultaneous clustering and dimensionality reduction
+    methods for three-way data, including the Gaussian SCR models described by
+    Rocci, Vichi and Ranalli (2025) <doi:10.1007/s00180-024-01478-1>.
+    The package provides three-way and vectorized SCR estimators, simulation
+    and validation utilities, Tucker3 centroid reduction, structural model
+    selection, stability diagnostics, covariance-separability extensions,
+    sparse loading projections, and Student-t robustness diagnostics.
 License: MIT + file LICENSE
 URL: https://github.com/DiogoRibeiro7/three_way_data_decomposition
 BugReports: https://github.com/DiogoRibeiro7/three_way_data_decomposition/issues
@@ -18,9 +21,10 @@ Imports:
     methods,
     rTensor,
     stats
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+NeedsCompilation: no
