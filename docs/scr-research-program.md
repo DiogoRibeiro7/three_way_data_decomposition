@@ -295,9 +295,17 @@ the Kronecker eigensystem directly, reports the separable boundary
 \(\tau=0\), likelihood improvement, BIC/ICL changes, posterior memberships,
 and deterministic search-bound diagnostics.
 
-This remains deliberately conditional rather than a new joint estimator.
-Feeding the profiled nugget back into the Tucker3 mean and covariance updates
-should be introduced only after this one-dimensional objective is validated.
+The conditional profile step is now followed by a conservative alternating
+refinement. `refine_scr_tucker3_nugget()` alternates between the validated
+separable Tucker3 fitter and conditional nugget profiling, using the profiled
+nugget observed-data likelihood as the outer objective. Profiled memberships
+are fed into the next separable refit, and a proposed round is rolled back if
+it decreases the outer objective beyond tolerance.
+
+This is intentionally described as profile refinement rather than exact EM or
+joint maximum likelihood. The Tucker3 mean block still uses a separable
+whitening metric, so an exact nonseparable block update requires a separate
+derivation.
 
 ### Sparse discriminating subspaces
 
