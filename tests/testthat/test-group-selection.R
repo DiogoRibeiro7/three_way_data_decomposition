@@ -79,14 +79,14 @@ test_that("outer selector supports ICL", {
   )
 
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "BIC"
     ),
     2L
   )
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "ICL"
     ),
@@ -107,7 +107,7 @@ test_that("outer criterion ties prefer the lower-complexity structure", {
   )
 
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "BIC",
       criterion_tolerance = 1e-8
