@@ -54,7 +54,7 @@ test_that("Tucker3 BIC ties prefer the lower-dimensional model", {
     bic = c(100, 100 + 5e-9, 99)
   )
 
-  selected <- threeway:::select_best_tucker3_candidate(
+  selected <- scr3way:::select_best_tucker3_candidate(
     comparison,
     bic_tolerance = 1e-8
   )
@@ -139,7 +139,7 @@ test_that("Tucker3 model selection evaluates every candidate consistently", {
     selected_row$iterations
   )
 
-  expected_index <- threeway:::select_best_tucker3_candidate(
+  expected_index <- scr3way:::select_best_tucker3_candidate(
     selection$comparison,
     bic_tolerance = selection$bic_tolerance
   )
@@ -189,7 +189,7 @@ test_that("criterion selector can choose ICL independently of BIC", {
   )
 
   expect_equal(
-    threeway:::select_best_tucker3_candidate(
+    scr3way:::select_best_tucker3_candidate(
       comparison,
       criterion = "BIC",
       criterion_tolerance = 1e-8
@@ -197,7 +197,7 @@ test_that("criterion selector can choose ICL independently of BIC", {
     2L
   )
   expect_equal(
-    threeway:::select_best_tucker3_candidate(
+    scr3way:::select_best_tucker3_candidate(
       comparison,
       criterion = "ICL",
       criterion_tolerance = 1e-8
