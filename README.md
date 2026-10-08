@@ -1,48 +1,140 @@
-# Three-Way Data Decomposition
+# scr3way
 
-R implementation, validation framework, and research extensions for simultaneous clustering and dimensionality reduction of three-way data.
+**scr3way** is an R package for simultaneous clustering and dimensionality reduction of three-way data.
 
-The statistical baseline is the Simultaneous Clustering and Reduction (SCR) model developed by Roberto Rocci, Maurizio Vichi, and Monia Ranalli in *Mixture models for simultaneous classification and reduction of three-way data*, Computational Statistics 40, 469–507 (2025), DOI: 10.1007/s00180-024-01478-1.
+The package is built around the Simultaneous Clustering and Reduction (SCR) methodology of Roberto Rocci, Maurizio Vichi, and Monia Ranalli:
 
-This repository is not intended to be a generic collection of tensor algorithms. Tensor decompositions are supporting numerical machinery. The primary objective is to reproduce the SCR methodology faithfully in R, validate it against the authors' MATLAB reference implementation, and then develop statistically meaningful extensions.
+> Rocci, R., Vichi, M. & Ranalli, M. (2025). *Mixture models for simultaneous classification and reduction of three-way data*. Computational Statistics, 40, 469–507. <https://doi.org/10.1007/s00180-024-01478-1>
 
-## Statistical baseline
+The repository began as an R reconstruction and validation effort against the authors' public MATLAB reference implementation. It now provides a tested SCR baseline together with research extensions for Tucker3 structure, model selection, covariance departures, sparsity, stability, and robust heavy-tailed modelling.
+
+## Models
 
 The baseline comparison contains three models:
 
-- **S3**: three-way SCR, with Tucker2 structure on the group means and a Kronecker-structured common covariance;
-- **S2**: two-way SCR applied to the vectorised three-way observations;
-- **H**: ordinary homoscedastic Gaussian mixture model.
+- **S3** — three-way SCR with a Tucker2 mean structure and separable common covariance;
+- **S2** — two-way SCR applied to vectorized three-way observations;
+- **H** — homoscedastic Gaussian mixture with unrestricted component means.
 
-The legacy R files under `rossi/` are a port of the authors' public MATLAB code in `moniar412/SCR3waydata`. They are currently treated as reference material, not yet as validated package code.
+The package also contains a **Tucker3 SCR extension** that reduces the group/centroid mode in addition to the variable and occasion modes.
 
-## Repository layers
+## Main capabilities
 
-- `R/`: tested package API and shared numerical infrastructure;
-- `tests/testthat/`: deterministic tests and numerical regression tests;
-- `rossi/`: legacy R translation of the original SCR reference implementation;
-- simulation and reproducibility code: to be rebuilt from the legacy scripts after the baseline port has been validated.
+### SCR estimation and validation
 
-The detailed model-to-code map, known porting discrepancies, and research roadmap are documented in [docs/scr-research-program.md](docs/scr-research-program.md).
+- `fit_scr_s3()` — three-way S3 baseline;
+- `fit_scr_s2()` — vectorized S2 baseline;
+- `fit_homoscedastic_gaussian_mixture()` — H comparator;
+- `run_scr_simulation()` and `run_scr_experiment_grid()` — reproducible simulation infrastructure;
+- hard partitions and adjusted Rand index utilities;
+- MATLAB-oriented numerical regression infrastructure retained for development validation.
 
-## Research programme
+### Tucker3 extension
 
-Development proceeds in two stages.
+- `fit_scr_s3_tucker3()`;
+- `scr_tucker3_mean_update()`;
+- explicit parameter counting and rank constraints;
+- direct S3-versus-Tucker3 benchmarking.
 
-First, the repository will establish a faithful R reproduction of S3, S2, H, the two simulation scenarios, and the ARI experiments reported in the paper. Numerical equivalence with the MATLAB reference implementation is the acceptance criterion.
+### Structural model selection
 
-Second, the SCR formulation will be used as a baseline for extensions. Candidate directions include centroid-mode reduction through Tucker3, joint model selection over clustering and reduction dimensions, controlled departures from exact Kronecker covariance structure, and robust or sparse variants. Extensions will be implemented only after the baseline is reproducible.
+- joint rank selection over `(P, Q, R)`;
+- outer selection over the number of groups `G`;
+- BIC and ICL criteria;
+- deterministic tie-breaking;
+- label-invariant subsampling stability selection.
 
-## Package status
+### Covariance extensions
 
-The package infrastructure is being modernised incrementally. Existing wrappers around `rTensor` provide supporting tensor decompositions, but these are not the scientific contribution of the project.
+- nearest Kronecker covariance approximation and separability diagnostics;
+- Kronecker-plus-nugget covariance
+  `Sigma_O %x% Sigma_V + tau I`;
+- conditional nugget profile likelihood;
+- conservative alternating nugget refinement.
 
-The SCR algorithms themselves are still under reconstruction and should not yet be treated as validated production implementations.
+### Sparse discriminating subspaces
 
-## Reference
+- row-group soft thresholding of variable and occasion loadings;
+- covariance-metric re-orthonormalization;
+- sparse Tucker3 mean projection;
+- deterministic support paths;
+- conditional active-set BIC/ICL support selection.
 
-Rocci, R., Vichi, M. & Ranalli, M. (2025). *Mixture models for simultaneous classification and reduction of three-way data*. Computational Statistics, 40, 469–507. https://doi.org/10.1007/s00180-024-01478-1
+### Robust modelling
+
+- multivariate Student-t Tucker3 likelihood;
+- posterior memberships and Mahalanobis distances;
+- latent robustness weights for downweighting remote observations;
+- Student-t parameter-count support.
+
+## Installation
+
+The package is currently in development and is being prepared for CRAN.
+
+```r
+# install.packages("remotes")
+remotes::install_github("DiogoRibeiro7/three_way_data_decomposition")
+```
+
+Then load it with:
+
+```r
+library(scr3way)
+```
+
+## Minimal example
+
+```r
+library(scr3way)
+
+set.seed(1)
+
+X <- matrix(rnorm(80 * 4), nrow = 80)
+membership <- matrix(runif(80 * 2), nrow = 80)
+membership <- membership / rowSums(membership)
+
+fit <- fit_scr_s3_tucker3(
+  X = X,
+  membership = membership,
+  centroid_rank = 1,
+  variable_rank = 1,
+  occasion_rank = 1,
+  variable_covariance = diag(2),
+  occasion_covariance = diag(2),
+  max_iter = 20
+)
+
+fit$ranks
+fit$bic
+```
+
+## Repository structure
+
+- `R/` — package implementation;
+- `tests/testthat/` — deterministic unit and numerical regression tests;
+- `docs/scr-research-program.md` — detailed scientific roadmap and methodology notes;
+- `rossi/` — legacy/reference R material retained in the repository but excluded from the CRAN source package;
+- `inst/matlab/` and MATLAB reference fixtures — development-only validation tooling, excluded from the CRAN source package.
+
+The public MATLAB code is used only as an external scientific reference. It is not distributed as part of the `scr3way` package tarball.
+
+## CRAN status
+
+The repository is being converted into a CRAN-ready package under the name `scr3way`.
+
+Before the first `0.1.0` submission, the remaining release work includes:
+
+- generated and audited `man/` documentation;
+- examples for exported user-facing functions;
+- introductory and methodology vignettes;
+- clean `R CMD check --as-cran` results on current R release and R-devel;
+- Windows and multi-platform checks;
+- final `cran-comments.md`.
+
+## Documentation
+
+The detailed reconstruction history, model definitions, validation rules, and research extensions are documented in [docs/scr-research-program.md](docs/scr-research-program.md).
 
 ## License
 
-See [LICENSE](LICENSE).
+The maintained R package code is released under the MIT License. See [LICENSE](LICENSE).
