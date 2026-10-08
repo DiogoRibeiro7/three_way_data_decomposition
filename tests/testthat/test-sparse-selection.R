@@ -178,7 +178,7 @@ test_that("sparse selector tie-breaking prefers lower active complexity", {
     icl = c(90, 90, 90)
   )
 
-  selected <- threeway:::select_best_sparse_candidate(
+  selected <- scr3way:::select_best_sparse_candidate(
     comparison,
     criterion = "BIC",
     criterion_tolerance = 1e-8
