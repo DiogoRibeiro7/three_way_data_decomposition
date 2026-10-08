@@ -1,4 +1,4 @@
 library(testthat)
-library(threeway)
+library(scr3way)
 
-test_check("threeway")
+test_check("scr3way")
