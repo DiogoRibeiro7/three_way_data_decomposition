@@ -311,6 +311,28 @@ derivation.
 
 Penalties or structured sparsity on (B) and (C) can move the method from latent dimensionality reduction toward explicit selection of discriminating variables and occasions.
 
+The first sparse layer now establishes the loading geometry before changing the
+mixture estimator. `scr_sparse_metric_basis()` applies row-group soft
+thresholding and then restores covariance-metric orthonormality through a
+right-side transformation, so rows thresholded exactly to zero remain exactly
+zero. This gives explicit variable/occasion support selection while preserving
+
+[
+B^T \Sigma_V^{-1} B = I,
+\qquad
+C^T \Sigma_O^{-1} C = I.
+]
+
+`scr_sparse_tucker3_projection()` keeps the centroid-mode basis fixed,
+sparsifies the variable and occasion loadings, and re-estimates the Tucker core
+by orthogonal projection of the weighted whitened centroid tensor.
+`scr_sparse_tucker3_path()` evaluates deterministic penalty grids and records
+active supports, reconstruction error, and rank-feasibility failures.
+
+This remains a post-fit sparse projection rather than a penalized likelihood
+estimator. Penalty selection and integration into the Tucker3 fitting loop
+should follow only after these support and metric invariants are validated.
+
 ### Robust SCR
 
 Heavy-tailed or contaminated component distributions can be studied after the Gaussian baseline is stable. Robustness should be integrated with the simultaneous reduction problem rather than implemented as an unrelated mixture variant.
