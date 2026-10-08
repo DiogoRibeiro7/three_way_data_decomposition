@@ -126,7 +126,7 @@ test_that("S2 validates membership and basis inputs", {
 
   expect_error(
     fit_scr_s2(X, U, matrix(1, nrow = 3, ncol = 1)),
-    "ncol\(X\) rows"
+    "ncol\\(X\\) rows"
   )
 
   rank_deficient <- cbind(rep(1, 4), rep(1, 4))
