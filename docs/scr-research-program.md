@@ -329,9 +329,31 @@ by orthogonal projection of the weighted whitened centroid tensor.
 `scr_sparse_tucker3_path()` evaluates deterministic penalty grids and records
 active supports, reconstruction error, and rank-feasibility failures.
 
-This remains a post-fit sparse projection rather than a penalized likelihood
-estimator. Penalty selection and integration into the Tucker3 fitting loop
-should follow only after these support and metric invariants are validated.
+The sparse projection geometry is now followed by conditional penalty
+selection. `scr_sparse_tucker3_parameter_count()` replaces the dense
+Grassmann dimensions for the variable and occasion modes with active-support
+dimensions,
+
+[
+Q(s_V-Q),
+\qquad
+R(s_O-R),
+]
+
+while keeping the full grand-mean and covariance dimensions. At full support
+this reduces exactly to the existing Tucker3 parameter count.
+
+`select_scr_sparse_tucker3()` evaluates each feasible penalty pair using the
+observed-data mixture likelihood of the sparse reconstructed means under the
+fitted mixing probabilities and separable covariance factors. It reports
+active-set BIC, entropy, and ICL, and selects by BIC or ICL with deterministic
+lower-complexity tie-breaking.
+
+This remains conditional support selection rather than a penalized maximum-
+likelihood estimator. The active support is treated as fixed in the BIC count,
+so no additional combinatorial search penalty is included. Integrating
+sparsity directly into the Tucker3 fitting loop remains a separate
+methodological step.
 
 ### Robust SCR
 
