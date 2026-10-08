@@ -106,7 +106,7 @@ test_that("stability selector uses lower complexity for ties", {
   )
 
   expect_equal(
-    threeway:::select_best_stability_candidate(
+    scr3way:::select_best_stability_candidate(
       comparison,
       stability_tolerance = 1e-8
     ),
