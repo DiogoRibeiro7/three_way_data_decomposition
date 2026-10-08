@@ -278,9 +278,26 @@ which preserves positive definiteness and adds only one covariance parameter.
 `scr_covariance_parameter_count()` makes the complexity difference between
 separable, nugget, and unrestricted common covariance models explicit.
 
-These utilities deliberately precede any change to the S3 or Tucker3 fitting
-algorithm. Joint estimation or profiling of \(\tau\) should be introduced
-only after the covariance geometry and parameter-count conventions are tested.
+The covariance geometry is now followed by a conditional profile-likelihood
+step. `scr_tucker3_nugget_loglik()` evaluates the observed-data mixture
+likelihood under
+
+[
+\Sigma(\tau)
+=
+\Sigma_O \otimes \Sigma_V + \tau I,
+]
+
+while `profile_scr_tucker3_nugget()` optimizes \(\tau \ge 0\) for a
+previously fitted Tucker3 model, holding its component means, mixing
+probabilities, and Kronecker covariance factors fixed. The implementation uses
+the Kronecker eigensystem directly, reports the separable boundary
+\(\tau=0\), likelihood improvement, BIC/ICL changes, posterior memberships,
+and deterministic search-bound diagnostics.
+
+This remains deliberately conditional rather than a new joint estimator.
+Feeding the profiled nugget back into the Tucker3 mean and covariance updates
+should be introduced only after this one-dimensional objective is validated.
 
 ### Sparse discriminating subspaces
 
