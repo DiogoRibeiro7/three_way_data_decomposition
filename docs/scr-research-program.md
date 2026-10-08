@@ -359,6 +359,43 @@ methodological step.
 
 Heavy-tailed or contaminated component distributions can be studied after the Gaussian baseline is stable. Robustness should be integrated with the simultaneous reduction problem rather than implemented as an unrelated mixture variant.
 
+The first robust layer now adds a multivariate Student-t objective while keeping
+the existing Tucker3 mean structure and separable common scale geometry.
+`scr_tucker3_student_loglik()` evaluates the observed-data Student-t mixture
+likelihood, posterior memberships, squared Mahalanobis distances, and the
+latent robustness weights
+
+[
+w_{ig}
+=
+\frac{\nu + JK}{\nu + \delta_{ig}}.
+]
+
+The posterior-averaged observation weight
+`sum_g u_ig w_ig` makes the intended robustness mechanism explicit: remote
+observations receive smaller effective precision.
+
+The matrices `Sigma_V` and `Sigma_O` are interpreted as Student-t scale
+factors, not covariance factors. For \(\nu>2\), the actual common covariance
+is
+
+[
+\frac{\nu}{\nu-2}
+\left(\Sigma_O \otimes \Sigma_V\right).
+]
+
+The likelihood convention omits the same Gaussian constant used elsewhere in
+the package, so the Student-t objective converges numerically to the package
+Gaussian objective as \(\nu\to\infty\).
+
+`scr_tucker3_student_parameter_count()` leaves the Tucker3 parameter count
+unchanged when \(\nu\) is fixed and adds one parameter when \(\nu\) is
+estimated.
+
+This remains a likelihood/E-step layer rather than a robust SCR estimator.
+Using the latent weights in Tucker3 mean and separable-scale updates requires a
+separate weighted block-coordinate derivation.
+
 ## Development rule
 
 No research extension should be evaluated against the current placeholder simulations.
