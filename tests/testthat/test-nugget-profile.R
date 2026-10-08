@@ -186,3 +186,57 @@ test_that("nugget profile validates fit objects and bounds", {
     "upper must be NULL or a positive"
   )
 })
+
+
+test_that("separable boundary can be selected exactly", {
+  means <- rbind(c(-2, 0, 0, 0), c(2, 0, 0, 0))
+  X <- rbind(
+    means[rep(1, 20), , drop = FALSE],
+    means[rep(2, 20), , drop = FALSE]
+  )
+
+  fit <- list(
+    M = means,
+    SV = diag(2),
+    SO = diag(2),
+    probabilities = c(0.5, 0.5),
+    ranks = c(P = 1L, Q = 1L, R = 1L)
+  )
+
+  profile <- profile_scr_tucker3_nugget(
+    X = X,
+    fit = fit,
+    upper = 2,
+    boundary_tolerance = 1e-6
+  )
+
+  expect_equal(profile$nugget, 0)
+  expect_equal(profile$likelihood_improvement, 0, tolerance = 1e-12)
+})
+
+
+test_that("automatic nugget bound expands when the optimum is far from zero", {
+  set.seed(3206)
+
+  fit <- list(
+    M = rbind(c(-1, 0, 0, 0), c(1, 0, 0, 0)),
+    SV = diag(2),
+    SO = diag(2),
+    probabilities = c(0.5, 0.5),
+    ranks = c(P = 1L, Q = 1L, R = 1L)
+  )
+
+  labels <- rep(1:2, each = 150)
+  X <- fit$M[labels, , drop = FALSE] +
+    matrix(rnorm(300 * 4, sd = 4), nrow = 300)
+
+  profile <- profile_scr_tucker3_nugget(
+    X = X,
+    fit = fit,
+    max_expansions = 6
+  )
+
+  expect_gt(profile$search$expansions, 0L)
+  expect_gt(profile$search$upper, 1)
+  expect_gt(profile$nugget, 0)
+})
