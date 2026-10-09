@@ -36,7 +36,9 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
+            any::knitr
             any::rcmdcheck
+            any::rmarkdown
             any::roxygen2
           needs: check
 
@@ -44,6 +46,15 @@ jobs:
         shell: Rscript {0}
         run: |
           roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
+
+      - name: Upload generated documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: roxygen-docs-${{ matrix.config.r }}
+          path: |
+            man
+            NAMESPACE
+          if-no-files-found: error
 
       - name: Check package
         shell: Rscript {0}

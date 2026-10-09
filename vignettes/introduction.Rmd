@@ -1,0 +1,183 @@
+---
+title: "Introduction to scr3way"
+author: "Diogo Ribeiro"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to scr3way}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4
+)
+library(scr3way)
+```
+
+# Overview
+
+`scr3way` implements simultaneous clustering and dimensionality reduction for
+three-way data. The package is built around the Simultaneous Clustering and
+Reduction (SCR) methodology of Rocci, Vichi, and Ranalli (2025).
+
+Suppose that each observation contains (J) variables measured on (K)
+occasions. After vectorization, each observation has dimension (JK), but the
+three-way structure is retained through separate variable and occasion modes.
+
+The package distinguishes a validated baseline from research extensions.
+
+# Baseline models
+
+The baseline comparison contains three models.
+
+- **S3** is the three-way SCR model. Its component means use a Tucker2
+  discriminating subspace and its common covariance is separable.
+- **S2** applies simultaneous clustering and reduction after vectorizing the
+  observations.
+- **H** is the ordinary homoscedastic Gaussian mixture comparator.
+
+The main fitting functions are `fit_scr_s3()`, `fit_scr_s2()`, and
+`fit_homoscedastic_gaussian_mixture()`.
+
+# Tucker3 centroid reduction
+
+The Tucker3 extension also reduces the group or centroid mode. For ranks
+((P,Q,R)), the component means are represented through centroid, variable,
+and occasion bases together with a Tucker core.
+
+A small deterministic fit can be created as follows.
+
+```{r tucker3-fit}
+set.seed(123)
+
+n <- 40L
+groups <- 2L
+variables <- 2L
+occasions <- 2L
+
+labels <- rep(seq_len(groups), each = n / groups)
+means <- rbind(
+  c(-2, 0, -1, 0),
+  c(2, 0, 1, 0)
+)
+
+X <- means[labels, , drop = FALSE] +
+  matrix(rnorm(n * variables * occasions, sd = 0.4), nrow = n)
+
+membership <- matrix(0.1, nrow = n, ncol = groups)
+membership[cbind(seq_len(n), labels)] <- 0.9
+membership <- membership / rowSums(membership)
+
+fit <- fit_scr_s3_tucker3(
+  X = X,
+  membership = membership,
+  centroid_rank = 1,
+  variable_rank = 1,
+  occasion_rank = 1,
+  variable_covariance = diag(variables),
+  occasion_covariance = diag(occasions),
+  max_iter = 10,
+  inner_max_iter = 10
+)
+
+fit$ranks
+fit$bic
+```
+
+# Structural model selection
+
+For fixed (G), `select_scr_tucker3_model()` compares candidate
+((P,Q,R)) structures. The package supports BIC and ICL. An outer layer,
+`select_scr_tucker3_groups()`, extends the search to candidate values of
+(G).
+
+The package uses the convention
+
+[
+\mathrm{BIC} = 2\ell - k\log n,
+]
+
+so larger values are preferred.
+
+ICL subtracts a classification-entropy penalty,
+
+[
+\mathrm{ICL} = \mathrm{BIC} - 2H(U).
+]
+
+Subsampling stability is available separately through
+`scr_tucker3_stability()` and `select_scr_tucker3_stable()`.
+
+# Covariance extensions
+
+The S3 baseline assumes exact separability,
+
+[
+\Sigma = \Sigma_O \otimes \Sigma_V.
+]
+
+The package provides tools for measuring departures from separability and for
+studying the controlled nugget family
+
+[
+\Sigma(\tau)
+=
+\Sigma_O \otimes \Sigma_V + \tau I.
+]
+
+Relevant functions include `scr_nearest_kronecker_covariance()`,
+`scr_kronecker_nugget_covariance()`, `profile_scr_tucker3_nugget()`, and
+`refine_scr_tucker3_nugget()`.
+
+# Sparse discriminating subspaces
+
+Sparse research utilities apply row-group thresholding to the variable and
+occasion loading matrices while restoring covariance-metric orthonormality.
+
+The main sparse functions are `scr_sparse_metric_basis()`,
+`scr_sparse_tucker3_projection()`, `scr_sparse_tucker3_path()`, and
+`select_scr_sparse_tucker3()`.
+
+These functions currently implement post-fit projection and conditional
+support selection rather than a fully penalized mixture estimator.
+
+# Robust Student-t likelihood
+
+The robust layer evaluates a multivariate Student-t mixture under the Tucker3
+mean structure. For squared Mahalanobis distance (delta_{ig}), the latent
+precision weight is
+
+[
+w_{ig} = \frac{\nu + JK}{\nu + \delta_{ig}}.
+]
+
+A remote observation therefore receives less effective weight.
+
+```{r student-t}
+robust <- scr_tucker3_student_loglik(
+  X = X,
+  means = fit$M,
+  probabilities = fit$probabilities,
+  variable_scale = fit$SV,
+  occasion_scale = fit$SO,
+  degrees_freedom = 6
+)
+
+head(robust$observation_weights)
+```
+
+# Reproducibility and research status
+
+The package keeps the published SCR baseline conceptually separate from
+research extensions. The repository also contains development-only regression
+material used to compare the R implementation with the authors' public MATLAB
+reference implementation.
+
+For the detailed reconstruction history, methodological assumptions, and
+research roadmap, see the repository document
+`docs/scr-research-program.md`.
