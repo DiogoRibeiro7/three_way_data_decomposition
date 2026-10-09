@@ -27,6 +27,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -47,14 +49,10 @@ jobs:
         run: |
           roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
 
-      - name: Upload generated documentation
-        uses: actions/upload-artifact@v4
-        with:
-          name: roxygen-docs-${{ matrix.config.r }}
-          path: |
-            man
-            NAMESPACE
-          if-no-files-found: error
+      - name: Verify generated documentation is current
+        shell: bash
+        run: |
+          git diff --exit-code -- man NAMESPACE
 
       - name: Check package
         shell: Rscript {0}
