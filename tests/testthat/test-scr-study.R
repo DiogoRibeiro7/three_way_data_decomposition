@@ -62,12 +62,14 @@ test_that("simula1 no longer returns placeholder model results", {
 
 test_that("custom membership initializers are normalized before fitting", {
   initializer <- function(X, groups, start, seed) {
-    matrix(
-      rep(c(2, 1), length.out = nrow(X) * groups),
-      nrow = nrow(X),
-      ncol = groups,
-      byrow = TRUE
+    ordered <- rank(X[, 1L], ties.method = "first")
+    labels <- pmin(
+      groups,
+      ceiling(ordered * groups / nrow(X))
     )
+    membership <- matrix(1, nrow = nrow(X), ncol = groups)
+    membership[cbind(seq_len(nrow(X)), labels)] <- 3 + start
+    membership
   }
 
   result <- run_scr_simulation(

@@ -2,7 +2,7 @@ scr_matlab_fixture_root <- function() {
   system.file(
     "extdata",
     "matlab_reference",
-    package = "threeway"
+    package = "scr3way"
   )
 }
 

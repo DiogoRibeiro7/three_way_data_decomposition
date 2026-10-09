@@ -325,7 +325,10 @@ validate_covariance_dimensions <- function(
   validate_positive_definite_matrix(covariance, "covariance")
 
   expected <- variables * occasions
-  if (!identical(dim(covariance), c(expected, expected))) {
+  if (
+    length(dim(covariance)) != 2L ||
+      any(dim(covariance) != c(expected, expected))
+  ) {
     stop(
       "covariance dimensions must equal (variables * occasions) squared."
     )

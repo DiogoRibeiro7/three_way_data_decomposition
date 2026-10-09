@@ -55,9 +55,9 @@ scr_centroid_basis <- function(
 #' Construct the G component means from the Tucker3 extension described by
 #' Rocci, Vichi, and Ranalli:
 #'
-#' deqn{
-#' \mu_{gjk} = \mu_{jk} +
-#' \sum_p \sum_q \sum_r
+#' \deqn{
+#' \mu_{gjk} = \\mu_{jk} +
+#' \sum_p \\sum_q \\sum_r
 #' a_{gp} b_{jq} c_{kr} \eta_{pqr}.
 #' }
 #'

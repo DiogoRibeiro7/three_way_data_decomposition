@@ -79,14 +79,14 @@ test_that("outer selector supports ICL", {
   )
 
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "BIC"
     ),
     2L
   )
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "ICL"
     ),
@@ -107,7 +107,7 @@ test_that("outer criterion ties prefer the lower-complexity structure", {
   )
 
   expect_equal(
-    threeway:::select_best_group_candidate(
+    scr3way:::select_best_group_candidate(
       comparison,
       criterion = "BIC",
       criterion_tolerance = 1e-8
@@ -119,11 +119,19 @@ test_that("outer criterion ties prefer the lower-complexity structure", {
 
 test_that("custom group membership initializers are supported", {
   set.seed(2603)
-  X <- matrix(rnorm(40 * 4), nrow = 40, ncol = 4)
+  labels <- rep(1:2, each = 20)
+  means <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+  X <- means[labels, , drop = FALSE] +
+    matrix(rnorm(40 * 4, sd = 0.35), nrow = 40)
 
   initializer <- function(X, groups, start, seed) {
+    ordered <- rank(X[, 1L], ties.method = "first")
+    labels <- pmin(
+      groups,
+      ceiling(ordered * groups / nrow(X))
+    )
     membership <- matrix(1, nrow = nrow(X), ncol = groups)
-    membership[, 1L] <- 2 + start
+    membership[cbind(seq_len(nrow(X)), labels)] <- 3 + start
     membership
   }
 

@@ -172,7 +172,7 @@ test_that("nugget-contaminated data can retain positive tau after refinement", {
 
 
 test_that("refinement step helper rejects worsening objective", {
-  decision <- threeway:::evaluate_nugget_refinement_step(
+  decision <- scr3way:::evaluate_nugget_refinement_step(
     previous_loglik = 10,
     proposed_loglik = 9.5,
     objective_tolerance = 0.1

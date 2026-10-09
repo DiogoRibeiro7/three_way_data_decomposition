@@ -31,7 +31,7 @@ test_that("experiment IDs are stable and unique", {
     groups = c(3L, 5L)
   )
 
-  expect_false(anyDuplicated(grid$experiment_id))
+  expect_equal(anyDuplicated(grid$experiment_id), 0L)
   expect_true(
     "I-G3-N300-S1-D1" %in% grid$experiment_id
   )

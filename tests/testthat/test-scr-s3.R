@@ -215,7 +215,7 @@ test_that("S3 validates dimensions and covariance inputs", {
       diag(3),
       diag(2)
     ),
-    "ncol\(X\)"
+    "ncol\\(X\\)"
   )
 
   expect_error(

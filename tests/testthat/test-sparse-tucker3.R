@@ -1,7 +1,7 @@
 test_that("zero penalty preserves an already metric-normalized basis", {
   covariance <- matrix(c(2, 0.2, 0.2, 1.5), 2, 2)
   raw <- matrix(c(1, 0, 0, 1), 2, 2)
-  basis <- threeway:::covariance_normalize_basis(raw, covariance)
+  basis <- scr3way:::covariance_normalize_basis(raw, covariance)
 
   result <- scr_sparse_metric_basis(
     basis = basis,
@@ -57,7 +57,7 @@ test_that("metric normalization preserves thresholded zero rows", {
     3,
     3
   )
-  basis <- threeway:::covariance_normalize_basis(
+  basis <- scr3way:::covariance_normalize_basis(
     matrix(
       c(
         1, 0,

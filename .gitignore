@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.Ruserdata
+.Renviron
+*.Rproj
+*.tar.gz
+*.Rcheck
+check/
+revdep/
+docs/reference/
+docs/articles/
