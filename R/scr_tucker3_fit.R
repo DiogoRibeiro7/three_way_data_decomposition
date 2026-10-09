@@ -12,11 +12,11 @@
 #' the posterior mass of group g, the returned centroid basis is
 #' A_g = D_g / sqrt(n_g). Consequently,
 #'
-#' \\deqn{\\pi^T A = 0}
+#' \deqn{\pi^T A = 0}
 #'
 #' and
 #'
-#' \\deqn{A^T \\operatorname{diag}(n_g) A = I}
+#' \deqn{A^T \\mathrm{diag}(n_g) A = I}
 #'
 #' @param group_centroids Numeric G-by-(J*K) matrix of posterior group means.
 #' @param group_mass Positive posterior group masses of length G.
