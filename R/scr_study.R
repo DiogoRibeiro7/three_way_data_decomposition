@@ -588,7 +588,8 @@ initialize_scr_membership <- function(
   if (
     !is.matrix(membership) ||
       !is.numeric(membership) ||
-      !identical(dim(membership), c(nrow(X), groups)) ||
+      length(dim(membership)) != 2L ||
+      any(dim(membership) != c(nrow(X), groups)) ||
       anyNA(membership) ||
       any(!is.finite(membership)) ||
       any(membership < 0)
