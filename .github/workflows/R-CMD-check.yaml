@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   R-CMD-check:
@@ -49,22 +49,7 @@ jobs:
         run: |
           roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
 
-      - name: Commit generated documentation
-        if: github.event_name == 'pull_request' && matrix.config.r == 'release'
-        shell: bash
-        run: |
-          if git diff --quiet -- man NAMESPACE && [ -d man ]; then
-            echo "Generated documentation is already committed."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add man NAMESPACE
-          git commit -m "docs: commit generated roxygen manuals"
-          git push origin HEAD:${{ github.head_ref }}
-
-      - name: Verify generated documentation
-        if: matrix.config.r == 'devel'
+      - name: Verify generated documentation is current
         shell: bash
         run: |
           git diff --exit-code -- man NAMESPACE
