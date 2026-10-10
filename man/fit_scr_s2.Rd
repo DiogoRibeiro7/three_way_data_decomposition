@@ -46,3 +46,20 @@ The implementation follows the authors' MATLAB reference algorithm. It
 alternates updates of the common covariance, discriminating basis, latent
 group scores, posterior memberships, and mixing proportions.
 }
+\examples{
+labels <- rep(1:2, each = 6)
+centers <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+X <- centers[labels, , drop = FALSE]
+membership <- matrix(0.1, nrow = 12, ncol = 2)
+membership[cbind(seq_len(12), labels)] <- 0.9
+membership <- membership / rowSums(membership)
+
+basis <- diag(4)[, 1:2, drop = FALSE]
+fit <- fit_scr_s2(
+  X,
+  membership,
+  basis,
+  max_iter = 1
+)
+fit$bic
+}

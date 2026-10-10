@@ -37,3 +37,14 @@ The returned covariance factors are symmetrized, projected to positive
 definiteness when necessary, and scale-normalized so the variable covariance
 has mean diagonal one. The occasion factor absorbs the reciprocal scale.
 }
+\examples{
+variable_covariance <- matrix(c(2, 0.3, 0.3, 1), 2, 2)
+occasion_covariance <- matrix(c(1.5, 0.2, 0.2, 0.8), 2, 2)
+covariance <- kronecker(occasion_covariance, variable_covariance)
+approximation <- scr_nearest_kronecker_covariance(
+  covariance,
+  variables = 2,
+  occasions = 2
+)
+approximation$relative_error
+}

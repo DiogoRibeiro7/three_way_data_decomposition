@@ -17,6 +17,16 @@
 #' @return A list containing normalized covariance factors, the reconstructed
 #'   Kronecker covariance, relative approximation errors, rank-one explained
 #'   fraction, rearrangement singular values, and projection diagnostics.
+#' @examples
+#' variable_covariance <- matrix(c(2, 0.3, 0.3, 1), 2, 2)
+#' occasion_covariance <- matrix(c(1.5, 0.2, 0.2, 0.8), 2, 2)
+#' covariance <- kronecker(occasion_covariance, variable_covariance)
+#' approximation <- scr_nearest_kronecker_covariance(
+#'   covariance,
+#'   variables = 2,
+#'   occasions = 2
+#' )
+#' approximation$relative_error
 #' @export
 scr_nearest_kronecker_covariance <- function(
   covariance,
@@ -142,6 +152,14 @@ scr_nearest_kronecker_covariance <- function(
 #' @param details Logical; when TRUE return covariance and spectral details.
 #' @return The covariance matrix, or a list of covariance and diagnostics when
 #'   `details = TRUE`.
+#' @examples
+#' covariance <- scr_kronecker_nugget_covariance(
+#'   variable_covariance = diag(2),
+#'   occasion_covariance = diag(2),
+#'   nugget = 0.25,
+#'   details = TRUE
+#' )
+#' covariance$condition_number
 #' @export
 scr_kronecker_nugget_covariance <- function(
   variable_covariance,

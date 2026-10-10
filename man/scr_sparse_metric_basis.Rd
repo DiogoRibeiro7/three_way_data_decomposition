@@ -35,3 +35,12 @@ its covariance-metric Gram matrix so that
 
 Right multiplication preserves rows that were thresholded exactly to zero.
 }
+\examples{
+basis <- diag(3)[, 1:2, drop = FALSE]
+sparse <- scr_sparse_metric_basis(
+  basis,
+  covariance = diag(3),
+  penalty = 0.1
+)
+sparse$active
+}

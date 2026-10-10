@@ -22,6 +22,25 @@
 #' @param return_distances Logical; include squared Mahalanobis distances.
 #' @param return_weights Logical; include component and observation weights.
 #' @return A list with log-likelihood and requested posterior diagnostics.
+#' @examples
+#' X <- rbind(
+#'   c(-1, 0, 0, 0),
+#'   c(1, 0, 0, 0),
+#'   c(4, 0, 0, 0)
+#' )
+#' means <- rbind(
+#'   c(-1, 0, 0, 0),
+#'   c(1, 0, 0, 0)
+#' )
+#' result <- scr_tucker3_student_loglik(
+#'   X,
+#'   means,
+#'   probabilities = c(0.5, 0.5),
+#'   variable_scale = diag(2),
+#'   occasion_scale = diag(2),
+#'   degrees_freedom = 6
+#' )
+#' result$observation_weights
 #' @export
 scr_tucker3_student_loglik <- function(
   X,
