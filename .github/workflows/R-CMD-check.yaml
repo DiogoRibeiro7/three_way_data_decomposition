@@ -8,27 +8,29 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   R-CMD-check:
     name: ${{ matrix.config.label }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - {label: "R release", r: "release"}
-          - {label: "R devel", r: "devel"}
+          - {label: "Ubuntu / R release", os: "ubuntu-latest", r: "release"}
+          - {label: "Ubuntu / R devel", os: "ubuntu-latest", r: "devel"}
+          - {label: "Windows / R release", os: "windows-latest", r: "release"}
+          - {label: "macOS / R release", os: "macos-latest", r: "release"}
 
     env:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -49,19 +51,10 @@ jobs:
         run: |
           roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
 
-      - name: Commit regenerated examples documentation
-        if: github.event_name == 'pull_request' && matrix.config.r == 'release'
+      - name: Verify generated documentation is current
         shell: bash
         run: |
-          if git diff --quiet -- man NAMESPACE; then
-            echo "Generated documentation is already current."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add man NAMESPACE
-          git commit -m "docs: regenerate manuals with examples"
-          git push origin HEAD:${{ github.head_ref }}
+          git diff --exit-code -- man NAMESPACE
 
       - name: Check package
         shell: Rscript {0}

@@ -1,4 +1,6 @@
-# scr3way 0.1.0.9000
+# scr3way 0.1.0
+
+First CRAN release candidate.
 
 ## Package foundation
 

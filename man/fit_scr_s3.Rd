@@ -58,13 +58,14 @@ subspace and \code{kronecker(occasion_covariance, variable_covariance)} for the
 common covariance structure.
 }
 \examples{
-labels <- rep(1:2, each = 6)
+set.seed(123)
+labels <- rep(1:2, each = 20)
 centers <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
-X <- centers[labels, , drop = FALSE]
-membership <- matrix(0.1, nrow = 12, ncol = 2)
-membership[cbind(seq_len(12), labels)] <- 0.9
+X <- centers[labels, , drop = FALSE] +
+  matrix(rnorm(40 * 4, sd = 0.4), nrow = 40)
+membership <- matrix(0.1, nrow = 40, ncol = 2)
+membership[cbind(seq_len(40), labels)] <- 0.9
 membership <- membership / rowSums(membership)
-
 fit <- fit_scr_s3(
   X,
   membership,

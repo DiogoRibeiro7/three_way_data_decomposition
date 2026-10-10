@@ -120,16 +120,17 @@ The public MATLAB code is used only as an external scientific reference. It is n
 
 ## CRAN status
 
-The repository is being converted into a CRAN-ready package under the name `scr3way`.
+`scr3way` is now in release-candidate preparation for its first CRAN
+submission as version `0.1.0`.
 
-Before the first `0.1.0` submission, the remaining release work includes:
+The repository contains committed roxygen-generated manuals, a deterministic
+introductory vignette, runnable examples for the principal scientific API, and
+CRAN-oriented checks. The release-candidate CI matrix covers Ubuntu on R
+release and R-devel, plus Windows and macOS on R release.
 
-- generated and audited `man/` documentation;
-- examples for exported user-facing functions;
-- introductory and methodology vignettes;
-- clean `R CMD check --as-cran` results on current R release and R-devel;
-- Windows and multi-platform checks;
-- final `cran-comments.md`.
+Before submission, the remaining steps are to complete the multi-platform
+release checks, finalize `cran-comments.md`, build the source tarball, and run
+external CRAN-style checks such as win-builder.
 
 ## Documentation
 
