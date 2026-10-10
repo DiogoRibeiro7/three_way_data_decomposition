@@ -191,7 +191,7 @@ scr_tucker3_mean_update <- function(
 #'   inner_max_iter = 2
 #' )
 #' fit$ranks
-#' #' @export
+#' @export
 fit_scr_s3_tucker3 <- function(
   X,
   membership,
