@@ -22,7 +22,23 @@
 #'   `like`, reference BIC score `bic`, iteration count `it`, mixing
 #'   proportions `probabilities`, convergence flag `converged`, and the
 #'   likelihood trajectory `log_likelihood_trace`.
-#' @export
+#' @examples
+#' labels <- rep(1:2, each = 6)
+#' centers <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+#' X <- centers[labels, , drop = FALSE]
+#' membership <- matrix(0.1, nrow = 12, ncol = 2)
+#' membership[cbind(seq_len(12), labels)] <- 0.9
+#' membership <- membership / rowSums(membership)
+#' 
+#' basis <- diag(4)[, 1:2, drop = FALSE]
+#' fit <- fit_scr_s2(
+#'   X,
+#'   membership,
+#'   basis,
+#'   max_iter = 1
+#' )
+#' fit$bic
+#' #' @export
 fit_scr_s2 <- function(
   X,
   membership,
