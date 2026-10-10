@@ -172,14 +172,15 @@ scr_tucker3_mean_update <- function(
 #'   matrices, covariance factors, Tucker core, grand mean, component means,
 #'   likelihood/BIC diagnostics, and convergence traces.
 #' @examples
-#' labels <- rep(1:2, each = 6)
+#' set.seed(123)
+#' labels <- rep(1:2, each = 20)
 #' centers <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
-#' X <- centers[labels, , drop = FALSE]
-#' membership <- matrix(0.1, nrow = 12, ncol = 2)
-#' membership[cbind(seq_len(12), labels)] <- 0.9
+#' X <- centers[labels, , drop = FALSE] +
+#'   matrix(rnorm(40 * 4, sd = 0.4), nrow = 40)
+#' membership <- matrix(0.1, nrow = 40, ncol = 2)
+#' membership[cbind(seq_len(40), labels)] <- 0.9
 #' membership <- membership / rowSums(membership)
-#' 
-#' fit <- fit_scr_s3_tucker3(
+#' #' fit <- fit_scr_s3_tucker3(
 #'   X,
 #'   membership,
 #'   centroid_rank = 1,
@@ -191,7 +192,7 @@ scr_tucker3_mean_update <- function(
 #'   inner_max_iter = 2
 #' )
 #' fit$ranks
-#' @export
+#' #' @export
 fit_scr_s3_tucker3 <- function(
   X,
   membership,
