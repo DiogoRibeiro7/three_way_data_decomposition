@@ -66,7 +66,6 @@ X <- centers[labels, , drop = FALSE] +
 membership <- matrix(0.1, nrow = 40, ncol = 2)
 membership[cbind(seq_len(40), labels)] <- 0.9
 membership <- membership / rowSums(membership)
-
 fit <- fit_scr_s3(
   X,
   membership,
