@@ -27,7 +27,7 @@
 #'   occasions = 2
 #' )
 #' approximation$relative_error
-#' #' @export
+#' @export
 scr_nearest_kronecker_covariance <- function(
   covariance,
   variables,
@@ -160,7 +160,7 @@ scr_nearest_kronecker_covariance <- function(
 #'   details = TRUE
 #' )
 #' covariance$condition_number
-#' #' @export
+#' @export
 scr_kronecker_nugget_covariance <- function(
   variable_covariance,
   occasion_covariance,
