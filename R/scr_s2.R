@@ -31,7 +31,7 @@
 #' membership <- matrix(0.1, nrow = 40, ncol = 2)
 #' membership[cbind(seq_len(40), labels)] <- 0.9
 #' membership <- membership / rowSums(membership)
-#' #' basis <- qr.Q(qr(matrix(rnorm(4 * 2), 4, 2)))
+#' basis <- qr.Q(qr(matrix(rnorm(4 * 2), 4, 2)))
 #' fit <- fit_scr_s2(
 #'   X,
 #'   membership,
@@ -39,7 +39,7 @@
 #'   max_iter = 1
 #' )
 #' fit$bic
-#' #' @export
+#' @export
 fit_scr_s2 <- function(
   X,
   membership,
