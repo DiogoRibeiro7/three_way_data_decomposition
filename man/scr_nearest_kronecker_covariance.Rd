@@ -47,5 +47,4 @@ approximation <- scr_nearest_kronecker_covariance(
   occasions = 2
 )
 approximation$relative_error
-#' @export
 }

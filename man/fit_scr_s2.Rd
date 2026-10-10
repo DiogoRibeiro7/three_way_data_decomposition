@@ -62,5 +62,4 @@ fit <- fit_scr_s2(
   max_iter = 1
 )
 fit$bic
-#' @export
 }

@@ -43,5 +43,4 @@ sparse <- scr_sparse_metric_basis(
   penalty = 0.1
 )
 sparse$active
-#' @export
 }

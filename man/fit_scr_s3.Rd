@@ -75,5 +75,4 @@ fit <- fit_scr_s3(
   max_iter = 1
 )
 fit$bic
-#' @export
 }

@@ -100,5 +100,4 @@ selection <- select_scr_tucker3_model(
   inner_max_iter = 2
 )
 selection$selected_ranks
-#' @export
 }

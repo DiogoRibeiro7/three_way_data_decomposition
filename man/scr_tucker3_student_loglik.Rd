@@ -71,5 +71,4 @@ result <- scr_tucker3_student_loglik(
   degrees_freedom = 6
 )
 result$observation_weights
-#' @export
 }

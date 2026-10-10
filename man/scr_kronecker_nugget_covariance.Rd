@@ -41,5 +41,4 @@ covariance <- scr_kronecker_nugget_covariance(
   details = TRUE
 )
 covariance$condition_number
-#' @export
 }
