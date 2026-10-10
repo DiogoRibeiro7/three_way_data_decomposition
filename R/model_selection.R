@@ -133,7 +133,7 @@ scr_tucker3_rank_grid <- function(
 #'   inner_max_iter = 2
 #' )
 #' selection$selected_ranks
-#' #' @export
+#' @export
 select_scr_tucker3_model <- function(
   X,
   membership,
