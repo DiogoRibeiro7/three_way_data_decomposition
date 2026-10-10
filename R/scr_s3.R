@@ -45,7 +45,7 @@
 #'   max_iter = 1
 #' )
 #' fit$bic
-#' #' @export
+#' @export
 fit_scr_s3 <- function(
   X,
   membership,
