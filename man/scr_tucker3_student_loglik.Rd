@@ -52,3 +52,24 @@ For squared Mahalanobis distance delta_ig, the latent robustness weight is
 
 \code{w_ig = (nu + d) / (nu + delta_ig)}.
 }
+\examples{
+X <- rbind(
+  c(-1, 0, 0, 0),
+  c(1, 0, 0, 0),
+  c(4, 0, 0, 0)
+)
+means <- rbind(
+  c(-1, 0, 0, 0),
+  c(1, 0, 0, 0)
+)
+result <- scr_tucker3_student_loglik(
+  X,
+  means,
+  probabilities = c(0.5, 0.5),
+  variable_scale = diag(2),
+  occasion_scale = diag(2),
+  degrees_freedom = 6
+)
+result$observation_weights
+#' @export
+}

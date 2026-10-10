@@ -80,3 +80,25 @@ so larger values are preferred. For ICL, classification entropy is
 whose active criterion values differ by no more than \code{criterion_tolerance}
 are treated as tied; the model with fewer free parameters is selected.
 }
+\examples{
+labels <- rep(1:2, each = 6)
+centers <- rbind(c(-2, 0, -1, 0), c(2, 0, 1, 0))
+X <- centers[labels, , drop = FALSE]
+membership <- matrix(0.1, nrow = 12, ncol = 2)
+membership[cbind(seq_len(12), labels)] <- 0.9
+membership <- membership / rowSums(membership)
+
+selection <- select_scr_tucker3_model(
+  X,
+  membership,
+  variable_covariance = diag(2),
+  occasion_covariance = diag(2),
+  centroid_ranks = 1,
+  variable_ranks = 1,
+  occasion_ranks = 1,
+  max_iter = 1,
+  inner_max_iter = 2
+)
+selection$selected_ranks
+#' @export
+}

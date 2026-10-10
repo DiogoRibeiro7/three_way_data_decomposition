@@ -33,3 +33,13 @@ Form the controlled covariance-departure family
 with \code{tau >= 0}. Since the Kronecker factor eigenvalues are products of
 factor eigenvalues, the nugget model admits direct spectral diagnostics.
 }
+\examples{
+covariance <- scr_kronecker_nugget_covariance(
+  variable_covariance = diag(2),
+  occasion_covariance = diag(2),
+  nugget = 0.25,
+  details = TRUE
+)
+covariance$condition_number
+#' @export
+}
