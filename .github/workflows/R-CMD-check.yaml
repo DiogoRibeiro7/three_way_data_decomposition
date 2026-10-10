@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   R-CMD-check:
@@ -27,6 +27,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
         with:
           ref: ${{ github.head_ref || github.ref_name }}
 
@@ -49,10 +51,19 @@ jobs:
         run: |
           roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
 
-      - name: Verify generated documentation is current
+      - name: Commit regenerated examples documentation
+        if: github.event_name == 'pull_request' && matrix.config.r == 'release'
         shell: bash
         run: |
-          git diff --exit-code -- man NAMESPACE
+          if git diff --quiet -- man NAMESPACE; then
+            echo "Generated documentation is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add man NAMESPACE
+          git commit -m "docs: regenerate manuals with examples"
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Check package
         shell: Rscript {0}
