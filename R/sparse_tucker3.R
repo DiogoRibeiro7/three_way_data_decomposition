@@ -28,7 +28,7 @@
 #'   penalty = 0.1
 #' )
 #' sparse$active
-#' #' @export
+#' @export
 scr_sparse_metric_basis <- function(
   basis,
   covariance,
