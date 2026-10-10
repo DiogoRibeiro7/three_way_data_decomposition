@@ -122,7 +122,7 @@ scr_tucker3_rank_grid <- function(
 #' membership <- matrix(0.1, nrow = 40, ncol = 2)
 #' membership[cbind(seq_len(40), labels)] <- 0.9
 #' membership <- membership / rowSums(membership)
-#' #' selection <- select_scr_tucker3_model(
+#' selection <- select_scr_tucker3_model(
 #'   X,
 #'   membership,
 #'   variable_covariance = diag(2),
@@ -134,7 +134,7 @@ scr_tucker3_rank_grid <- function(
 #'   inner_max_iter = 2
 #' )
 #' selection$selected_ranks
-#' #' @export
+#' @export
 select_scr_tucker3_model <- function(
   X,
   membership,
