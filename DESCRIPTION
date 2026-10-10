@@ -1,7 +1,7 @@
 Package: scr3way
 Type: Package
 Title: Simultaneous Clustering and Reduction for Three-Way Data
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R:
     person("Diogo", "Ribeiro", email = "diogo_dj@hotmail.com",
            role = c("aut", "cre"))
