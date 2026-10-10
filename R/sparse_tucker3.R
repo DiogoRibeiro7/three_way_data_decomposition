@@ -20,7 +20,15 @@
 #' @param tolerance Numerical rank and identity tolerance.
 #' @return A list containing the sparse metric-orthonormal basis, active support,
 #'   original row norms, threshold multipliers, and metric Gram matrix.
-#' @export
+#' @examples
+#' basis <- diag(3)[, 1:2, drop = FALSE]
+#' sparse <- scr_sparse_metric_basis(
+#'   basis,
+#'   covariance = diag(3),
+#'   penalty = 0.1
+#' )
+#' sparse$active
+#' #' @export
 scr_sparse_metric_basis <- function(
   basis,
   covariance,
