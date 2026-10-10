@@ -41,7 +41,7 @@
 #'   degrees_freedom = 6
 #' )
 #' result$observation_weights
-#' #' @export
+#' @export
 scr_tucker3_student_loglik <- function(
   X,
   means,
