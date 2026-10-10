@@ -36,7 +36,7 @@
 #' membership <- matrix(0.1, nrow = 40, ncol = 2)
 #' membership[cbind(seq_len(40), labels)] <- 0.9
 #' membership <- membership / rowSums(membership)
-#' #' fit <- fit_scr_s3(
+#' fit <- fit_scr_s3(
 #'   X,
 #'   membership,
 #'   variable_basis = matrix(c(1, 0), ncol = 1),
@@ -46,7 +46,7 @@
 #'   max_iter = 1
 #' )
 #' fit$bic
-#' #' @export
+#' @export
 fit_scr_s3 <- function(
   X,
   membership,
