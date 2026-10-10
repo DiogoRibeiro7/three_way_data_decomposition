@@ -89,7 +89,6 @@ X <- centers[labels, , drop = FALSE] +
 membership <- matrix(0.1, nrow = 40, ncol = 2)
 membership[cbind(seq_len(40), labels)] <- 0.9
 membership <- membership / rowSums(membership)
-
 selection <- select_scr_tucker3_model(
   X,
   membership,
