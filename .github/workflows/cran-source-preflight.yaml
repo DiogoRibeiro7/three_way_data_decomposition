@@ -1,0 +1,149 @@
+name: CRAN-source-preflight
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-preflight:
+    name: Source tarball preflight
+    runs-on: ubuntu-latest
+
+    env:
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::knitr
+            any::rcmdcheck
+            any::rmarkdown
+            any::roxygen2
+          needs: check
+
+      - name: Verify generated documentation
+        shell: Rscript {0}
+        run: |
+          roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
+          status <- system2("git", c("diff", "--quiet", "--", "man", "NAMESPACE"))
+          if (status != 0) {
+            stop("Generated documentation is stale.")
+          }
+
+      - name: Build source package
+        shell: bash
+        run: |
+          R CMD build .
+          test -f scr3way_0.1.0.tar.gz
+
+      - name: Create tarball manifest
+        shell: bash
+        run: |
+          sha256sum scr3way_0.1.0.tar.gz | tee scr3way_0.1.0.sha256
+          wc -c scr3way_0.1.0.tar.gz | tee scr3way_0.1.0.bytes
+          tar -tzf scr3way_0.1.0.tar.gz | tee scr3way_0.1.0.contents.txt
+
+      - name: Audit tarball contents
+        shell: bash
+        run: |
+          CONTENTS="scr3way_0.1.0.contents.txt"
+
+          forbidden=(
+            "scr3way/rossi/"
+            "scr3way/inst/matlab/"
+            "scr3way/docs/"
+            "scr3way/cran-comments.md"
+            "scr3way/.github/"
+            "scr3way/.gitignore"
+            "scr3way/kernel_clustering.R"
+            "scr3way/t_svd_recontruct.R"
+            "scr3way/tensor_svc.R"
+            "scr3way/test_tuckal.r"
+            "scr3way/tuckal.R"
+            "scr3way/LICENSE.md"
+            "scr3way/check/"
+          )
+
+          for path in "${forbidden[@]}"; do
+            if grep -Fq "$path" "$CONTENTS"; then
+              echo "Forbidden package content found: $path"
+              exit 1
+            fi
+          done
+
+          required=(
+            "scr3way/DESCRIPTION"
+            "scr3way/NAMESPACE"
+            "scr3way/R/"
+            "scr3way/man/"
+            "scr3way/tests/"
+            "scr3way/vignettes/"
+            "scr3way/inst/extdata/matlab_reference/inputs/"
+          )
+
+          for path in "${required[@]}"; do
+            if ! grep -Fq "$path" "$CONTENTS"; then
+              echo "Required package content missing: $path"
+              exit 1
+            fi
+          done
+
+      - name: Check package URLs
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            --retry 3 \
+            --output /dev/null \
+            https://github.com/DiogoRibeiro7/three_way_data_decomposition
+
+          curl --fail --location --silent --show-error \
+            --retry 3 \
+            --output /dev/null \
+            https://github.com/DiogoRibeiro7/three_way_data_decomposition/issues
+
+          curl --fail --location --silent --show-error \
+            --retry 3 \
+            --output /dev/null \
+            https://doi.org/10.1007/s00180-024-01478-1
+
+      - name: Check built source tarball
+        shell: Rscript {0}
+        run: |
+          result <- rcmdcheck::rcmdcheck(
+            "scr3way_0.1.0.tar.gz",
+            args = c("--no-manual", "--as-cran"),
+            error_on = "warning",
+            check_dir = "check-tarball"
+          )
+
+          if (length(result$errors) > 0L) {
+            stop("Source tarball check reported errors.")
+          }
+          if (length(result$warnings) > 0L) {
+            stop("Source tarball check reported warnings.")
+          }
+
+      - name: Upload CRAN source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: scr3way-0.1.0-cran-source
+          path: |
+            scr3way_0.1.0.tar.gz
+            scr3way_0.1.0.sha256
+            scr3way_0.1.0.bytes
+            scr3way_0.1.0.contents.txt
+          if-no-files-found: error
