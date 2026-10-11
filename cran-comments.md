@@ -9,23 +9,27 @@ for three-way data and cites the underlying SCR methodology in DESCRIPTION.
 
 ## Test environments
 
-Release-candidate CI is configured for:
+The release candidate has been checked on:
 
 - Ubuntu latest, R release
 - Ubuntu latest, R-devel
 - Windows latest, R release
 - macOS latest, R release
 
-The final submission record will be updated with the completed results from
-these environments and any external CRAN-style checks.
-
-## R CMD check
-
-Target result before submission:
+All four environments completed with:
 
 - 0 ERRORs
 - 0 WARNINGs
-- only the expected first-submission NOTE, if reported by CRAN incoming checks
+- 1 NOTE: New submission
+
+## R CMD check
+
+The only NOTE reported by the release-candidate matrix is the expected
+first-submission note:
+
+`New submission`
+
+No additional check notes are currently present.
 
 ## Additional notes
 
@@ -44,7 +48,8 @@ Target result before submission:
 
 ## Final pre-submission checks
 
-- [ ] Four-platform release-candidate CI passes
+- [x] Four-platform release-candidate CI passes
+- [ ] Source tarball preflight passes
 - [ ] `R CMD build .`
 - [ ] `R CMD check --as-cran scr3way_0.1.0.tar.gz`
 - [ ] win-builder / Windows CRAN-style check
