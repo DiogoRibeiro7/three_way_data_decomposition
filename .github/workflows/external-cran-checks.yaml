@@ -1,0 +1,110 @@
+name: External-CRAN-checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "External CRAN builder"
+        required: true
+        type: choice
+        options:
+          - win-release
+          - win-devel
+          - mac-release
+          - mac-devel
+      email:
+        description: "Optional notification email override"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  external-check:
+    name: ${{ inputs.target }}
+    runs-on: ubuntu-latest
+
+    env:
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::knitr
+            any::rmarkdown
+            any::roxygen2
+          needs: check
+
+      - name: Verify package state
+        shell: Rscript {0}
+        run: |
+          roxygen2::roxygenise(".", roclets = c("rd", "namespace"))
+          status <- system2("git", c("diff", "--quiet", "--", "man", "NAMESPACE"))
+          if (status != 0) {
+            stop("Generated documentation is stale.")
+          }
+
+          desc <- read.dcf("DESCRIPTION")
+          if (desc[1, "Version"] != "0.1.0") {
+            stop("External checks are restricted to scr3way 0.1.0.")
+          }
+
+      - name: Submit to selected external builder
+        shell: Rscript {0}
+        env:
+          CHECK_TARGET: ${{ inputs.target }}
+          CHECK_EMAIL: ${{ inputs.email }}
+        run: |
+          target <- Sys.getenv("CHECK_TARGET")
+          email <- Sys.getenv("CHECK_EMAIL")
+          if (!nzchar(email)) {
+            email <- NULL
+          }
+
+          message(
+            "This step uploads the source package to an external CRAN builder: ",
+            target
+          )
+
+          result <- switch(
+            target,
+            "win-release" = devtools::check_win_release(
+              pkg = ".",
+              email = email,
+              webform = TRUE,
+              manual = FALSE,
+              quiet = FALSE
+            ),
+            "win-devel" = devtools::check_win_devel(
+              pkg = ".",
+              email = email,
+              webform = TRUE,
+              manual = FALSE,
+              quiet = FALSE
+            ),
+            "mac-release" = devtools::check_mac_release(
+              pkg = ".",
+              manual = FALSE,
+              quiet = FALSE
+            ),
+            "mac-devel" = devtools::check_mac_devel(
+              pkg = ".",
+              manual = FALSE,
+              quiet = FALSE
+            ),
+            stop("Unsupported external check target.")
+          )
+
+          if (!is.null(result)) {
+            message("External check response: ", paste(result, collapse = " "))
+          }
