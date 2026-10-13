@@ -22,18 +22,18 @@ All four environments completed with:
 - 0 WARNINGs
 - 1 NOTE: New submission
 
-## Source-package preflight
+## Final source-package fingerprint
 
-The CRAN source-package preflight completed successfully.
+The citation-aware CRAN source package preflight completed successfully.
 
 Built source package:
 
 - file: `scr3way_0.1.0.tar.gz`
-- size: 95,964 bytes
+- size: 96,300 bytes
 - SHA-256:
-  `ac16c9af137edf8d16a802041b4d432efa3cc77cc8a6f387024dd5fbeabd0ba5`
+  `c95faddc36642397f7c6c4666930bfc6b5290ab2f73532accdfc122933e41cff`
 
-The preflight also verified:
+The preflight verified:
 
 - `R CMD build` completes successfully;
 - the built tarball passes `R CMD check --as-cran`;
@@ -41,16 +41,8 @@ The preflight also verified:
 - package homepage and BugReports URLs are reachable;
 - the cited DOI is reachable;
 - development-only repository material is excluded from the source tarball;
-- required package code, manuals, tests, vignette, and deterministic regression
-  inputs are present.
-
-## R CMD check
-
-The only NOTE currently reported is the expected first-submission note:
-
-`New submission`
-
-No ERRORs or WARNINGs are present.
+- required package code, manuals, tests, vignette, deterministic regression
+  inputs, and package citation metadata are present.
 
 ## Additional notes
 
@@ -78,4 +70,6 @@ No ERRORs or WARNINGs are present.
 - [x] package size reviewed
 - [x] final tarball contents reviewed
 - [ ] external macOS builder check
+- [ ] tag `v0.1.0`
+- [ ] inspect draft GitHub release
 - [ ] final CRAN submission
