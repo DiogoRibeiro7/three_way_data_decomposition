@@ -22,14 +22,35 @@ All four environments completed with:
 - 0 WARNINGs
 - 1 NOTE: New submission
 
+## Source-package preflight
+
+The CRAN source-package preflight completed successfully.
+
+Built source package:
+
+- file: `scr3way_0.1.0.tar.gz`
+- size: 95,964 bytes
+- SHA-256:
+  `ac16c9af137edf8d16a802041b4d432efa3cc77cc8a6f387024dd5fbeabd0ba5`
+
+The preflight also verified:
+
+- `R CMD build` completes successfully;
+- the built tarball passes `R CMD check --as-cran`;
+- the only NOTE is `New submission`;
+- package homepage and BugReports URLs are reachable;
+- the cited DOI is reachable;
+- development-only repository material is excluded from the source tarball;
+- required package code, manuals, tests, vignette, and deterministic regression
+  inputs are present.
+
 ## R CMD check
 
-The only NOTE reported by the release-candidate matrix is the expected
-first-submission note:
+The only NOTE currently reported is the expected first-submission note:
 
 `New submission`
 
-No additional check notes are currently present.
+No ERRORs or WARNINGs are present.
 
 ## Additional notes
 
@@ -49,10 +70,12 @@ No additional check notes are currently present.
 ## Final pre-submission checks
 
 - [x] Four-platform release-candidate CI passes
-- [ ] Source tarball preflight passes
-- [ ] `R CMD build .`
-- [ ] `R CMD check --as-cran scr3way_0.1.0.tar.gz`
+- [x] Source tarball preflight passes
+- [x] `R CMD build .`
+- [x] `R CMD check --as-cran scr3way_0.1.0.tar.gz`
 - [ ] win-builder / Windows CRAN-style check
-- [ ] URLs and DOI checked
-- [ ] package size reviewed
-- [ ] final tarball contents reviewed
+- [x] URLs and DOI checked
+- [x] package size reviewed
+- [x] final tarball contents reviewed
+- [ ] external macOS builder check
+- [ ] final CRAN submission
