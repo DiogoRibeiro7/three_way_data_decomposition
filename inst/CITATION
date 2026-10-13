@@ -1,0 +1,25 @@
+citHeader("To cite scr3way in publications, use:")
+
+bibentry(
+  bibtype = "Manual",
+  title = "scr3way: Simultaneous Clustering and Reduction for Three-Way Data",
+  author = person("Diogo", "Ribeiro"),
+  year = "2026",
+  note = "R package version 0.1.0",
+  url = "https://github.com/DiogoRibeiro7/three_way_data_decomposition"
+)
+
+bibentry(
+  bibtype = "Article",
+  title = "Mixture Models for Simultaneous Classification and Reduction of Three-Way Data",
+  author = c(
+    person("Roberto", "Rocci"),
+    person("Maurizio", "Vichi"),
+    person("Monia", "Ranalli")
+  ),
+  journal = "Computational Statistics",
+  year = "2025",
+  volume = "40",
+  pages = "469--507",
+  doi = "10.1007/s00180-024-01478-1"
+)
