@@ -136,6 +136,16 @@ external CRAN-style checks such as win-builder.
 
 The detailed reconstruction history, model definitions, validation rules, and research extensions are documented in [docs/scr-research-program.md](docs/scr-research-program.md).
 
+## Citation
+
+For the package citation and the underlying SCR methodology reference, use:
+
+```r
+citation("scr3way")
+```
+
+The package citation metadata is stored in `inst/CITATION`.
+
 ## License
 
 The maintained R package code is released under the MIT License. See [LICENSE](LICENSE).
