@@ -17,7 +17,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -138,7 +138,7 @@ jobs:
           }
 
       - name: Upload CRAN source package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scr3way-0.1.0-cran-source
           path: |
