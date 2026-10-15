@@ -24,14 +24,19 @@ All four environments completed with:
 
 ## Final source-package fingerprint
 
-The citation-aware CRAN source package preflight completed successfully.
+The final source package attached to the published GitHub release
+`V0.1.0` completed the release check successfully.
+
+An earlier preflight build had a different archive SHA-256 because the source
+tarball was rebuilt, but the complete contents manifest is unchanged. The
+release asset below is the submission artifact.
 
 Built source package:
 
 - file: `scr3way_0.1.0.tar.gz`
 - size: 96,300 bytes
 - SHA-256:
-  `c95faddc36642397f7c6c4666930bfc6b5290ab2f73532accdfc122933e41cff`
+  `c7f75ead6b6717036d485f2ed14a68bef6066c9da535196a6b71215a1563645a`
 
 The preflight verified:
 

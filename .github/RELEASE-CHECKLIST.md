@@ -5,7 +5,7 @@ The package source is frozen at the following CRAN source-package fingerprint:
 - file: `scr3way_0.1.0.tar.gz`
 - size: **96,300 bytes**
 - SHA-256:
-  `c95faddc36642397f7c6c4666930bfc6b5290ab2f73532accdfc122933e41cff`
+  `c7f75ead6b6717036d485f2ed14a68bef6066c9da535196a6b71215a1563645a`
 
 Do not change files included in the source package after this point without
 regenerating the fingerprint and rerunning all release checks.
@@ -20,7 +20,7 @@ regenerating the fingerprint and rerunning all release checks.
 5. Wait for **Draft-release** to finish.
 6. Inspect the draft GitHub release and attached files.
 7. Verify the attached source tarball SHA-256 is exactly:
-   `c95faddc36642397f7c6c4666930bfc6b5290ab2f73532accdfc122933e41cff`.
+   `c7f75ead6b6717036d485f2ed14a68bef6066c9da535196a6b71215a1563645a`.
 8. Keep the GitHub release as draft until external checks are accepted.
 9. Submit the exact checked source tarball to CRAN manually.
 10. After CRAN acceptance, publish the GitHub release and move development
